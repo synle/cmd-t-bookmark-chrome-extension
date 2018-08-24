@@ -9,6 +9,41 @@ async function getTree(){
     })
 }
 
+function transformBookmark(nodes, mapNodesByUrl, mapNodesById){
+    nodes = [].concat(nodes);
+    mapNodesByUrl = mapNodesByUrl || {};
+    mapNodesById = mapNodesById || {};
+
+    nodes.filter(node => !!node)
+        .forEach(node => {
+            let {id, parentId, url} = node;
+            if(id){
+                mapNodesById[id] = node;
+
+                if(url){
+                    mapNodesByUrl[url] = node;
+                }
+
+                node.ancestorIds = [];
+                node.ancestorLabels = [];
+
+                // traverse up and get all the name prefix
+                while(parentId !== undefined && parentId !== 0){
+                    const parentNode = mapNodesById[parentId];
+
+                    node.ancestorIds.unshift(parentNode.id);
+                    node.ancestorLabels.unshift(parentNode.title);
+
+                    parentId = mapNodesById[parentId].parentId;
+                }
+
+                transformBookmark(node.children, mapNodesByUrl, mapNodesById);
+            }
+        })
+
+    return Object.values(mapNodesByUrl);
+}
+
 
 // init
 (
