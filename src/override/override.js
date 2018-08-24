@@ -17,17 +17,16 @@
             (e) => {
                 const {key} = e;
                 let matches = [...document.querySelectorAll(`.match a`)];
-                let currentFocusedElem = document.querySelector(':focus');
-                const isTextBoxFocus = currentFocusedElem.id === 'txt-search';
-                const isUp = key === 'ArrowUp';
-                const isDown = key === 'ArrowDown';
-
                 if(matches.length === 0){
                     return;
                 }
 
+                let currentFocusedElem = document.querySelector(':focus');
+                const isUp = key === 'ArrowUp';
+                const isDown = key === 'ArrowDown';
+
                 if(isUp || isDown){
-                    if(isTextBoxFocus){
+                    if(!currentFocusedElem){
                         // focus on the first match
                         currentFocusedElem = matches ? matches[0] : null;
                     } else {
@@ -63,6 +62,7 @@
                 timer = setTimeout(
                     function(){
                         const matches = searchBookmarks(keyword, flattened_bookmarks);
+                        console.log('matches', matches.length)
                         populateBookmarks(keyword, matches);
                     },
                     500
@@ -81,19 +81,12 @@
             } else {
                 matches.forEach(({url, title, breadcrumb}, idx) => {
                     const highlightedTitle = getHighlightedTitle(title, keyword);
-                    if(breadcrumb){
-                        dom += `<div class="match">
-                            <span>${idx}. </span>
-                            <strong>[${breadcrumb}]</strong>
-                            <a href="${url}" tabindex="${idx + 1}">${highlightedTitle}</a>
-                        </div>`;
-                    }
-                    else {
-                        dom += `<div class="match">
-                            <span>${idx}. </span>
-                            <a href="${url}" tabindex="${idx + 1}">${highlightedTitle}</a>
-                        </div>`;
-                    }
+                    const highlightedUrl = getHighlightedUrl(url, keyword);
+
+                    dom += `<div class="match">
+                        <span class="match-url">${highlightedUrl}</span>
+                        <a href="${url}" tabindex="${idx + 1}" class="match-label">${highlightedTitle}</a>
+                    </div>`;
                 })
             }
 
@@ -101,10 +94,24 @@
                 .innerHTML = dom;
         }
 
-        function getHighlightedTitle(title, keyword){
+        function getHighlightedString(title, keyword){
             return title.replace(new RegExp(keyword, 'gi'), function(matchedKeyword){
                 return `<span class="highlight">${matchedKeyword}</span>`;
             });
+        }
+
+
+        function getHighlightedTitle(title, keyword){
+            return getHighlightedString(title, keyword);
+        }
+
+
+        function getHighlightedUrl(title, keyword){
+            title = title.replace('https://', '')
+                        .replace('http://', '')
+                        .replace('www.', '')
+
+            return getHighlightedString(title, keyword);
         }
 
         function searchBookmarks(keyword, flattened_bookmarks){
@@ -117,8 +124,9 @@
             )
         }
 
-        function fuzzyMatchBookmark({id, title, url}, keyword){
-            return title.toLowerCase().indexOf(keyword) >= 0;
+        function fuzzyMatchBookmark({title, url}, keyword){
+            return title.toLowerCase().indexOf(keyword) >= 0
+                || url.toLowerCase().indexOf(keyword) >= 0;
         }
 
 
@@ -175,9 +183,9 @@
                     }
                 })
 
-            return Object.values(mapNodesByUrl).sort((a,b) => {
-                return a.breadcrumb > b.breadcrumb;
-            });
+            return Object.values(mapNodesByUrl)
+                // ignore bookmarklet
+                .filter(({url}) => url.indexOf(`script:(`) !== 0);
         }
     }
 )()
