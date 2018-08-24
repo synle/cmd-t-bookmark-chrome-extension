@@ -56,7 +56,7 @@
         }
 
         function searchBookmarks(keyword, flattened_bookmarks){
-            if(keyword.length === 0){
+            if(keyword.length < 2){
                 return [];
             }
 
@@ -102,6 +102,10 @@
                             node.ancestorLabels.unshift(parentNode.title);
 
                             parentId = mapNodesById[parentId].parentId;
+
+                            if(parentId === 0){
+                                break;
+                            }
                         }
 
                         if(node.ancestorLabels.length > 0){
@@ -113,7 +117,9 @@
                     }
                 })
 
-            return Object.values(mapNodesByUrl);
+            return Object.values(mapNodesByUrl).sort((a,b) => {
+                return a.breadcrumb > b.breadcrumb;
+            });
         }
     }
 )()
