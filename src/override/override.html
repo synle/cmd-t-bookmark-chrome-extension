@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta http-equiv="Content-Security-Policy"
+    content="script-src 'self'">
+	<title></title>
+</head>
+<body>
+    <style>
+      :root{
+        --space0: 10px;
+        --space1: 20px;
+        --space2: 30px;
+        --space3: 40px;
+        --font-size0: 10px;
+        --font-size1: 20px;
+        --font-size2: 30px;
+        --font-size3: 40px;
+        --c-black0: black;
+        --c-black1: #333;
+        --c-black2: #999;
+        --c-black3: #eee;
+      };
+      *{
+        box-sizing: border-box;
+        font-size: var(--font-size1);
+      }
+      body{
+        background: var(--c-black3);
+        padding: var(--space2);
+      }
+      #txt-search{
+        padding: var(--space0);
+        width: 100%;
+        font-size: var(--font-size1);
+      }
+    </style>
+    <input id="txt-search"
+      placeholder="Search For Bookmark"
+      type="text"
+      autofocus />
+    <script type="text/javascript" src="./override.js"></script>
+</body>
+</html>
