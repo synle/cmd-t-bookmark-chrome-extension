@@ -2,6 +2,7 @@
 (
     async function(){
         const all_bookmarks = await getTree();
+        const flattened_bookmarks = transformBookmark(all_bookmarks);
 
         // hook up the search
         document.querySelector('#txt-search').addEventListener(
@@ -21,7 +22,8 @@
                     function(){
                         console.log('keyword: ', keyword);
 
-                        const matches = searchBookmarks(keyword, all_bookmarks);
+                        const matches = searchBookmarks(keyword, flattened_bookmarks);
+                        populateBookmarks(matches);
                     },
                     1000
                 )
@@ -31,20 +33,21 @@
 
         function populateBookmarks(matches){
             var dom;
+            console.log('matches', matches)
 
             document.querySelector('#bookmarks-container')
                 .innerHTML = dom;
         }
 
-        function searchBookmarks(keyword, all_bookmarks){
-            all_bookmarks.filter(
+        function searchBookmarks(keyword, flattened_bookmarks){
+            return flattened_bookmarks.filter(
                 bookmark => fuzzyMatchBookmark(bookmark)
             )
         }
 
-        function fuzzyMatchBookmark(bookmark){
+        function fuzzyMatchBookmark({id, title, url}){
             // TODO: cheat here with mod 119 (prime number)
-            return bookmark.id % 997 === 0;
+            return id % 97 === 0;
         }
 
 
