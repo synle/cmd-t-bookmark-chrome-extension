@@ -45,11 +45,8 @@
         color: var(--c-grey1);
         background: var(--c-yellow0);
         border: none;
-        position: sticky;
-        top: 0px;
       }
       #bookmarks-container{
-        max-height: var(--app-height);
         overflow: auto;
         background: var(--c-white0);
         color: var(--c-grey1);
@@ -59,30 +56,37 @@
         padding: var(--space1);
         border: 1px solid transparent;
       }
-      .match a, .match a:visited {
+      .match a, .match a:visited{
         color: var(--c-blue1);
         text-decoration: none;
         font-weight: 700;
       }
-      .match a:focus {
+      .match a:focus{
         outline-color: transparent;
         outline-style: none;
       }
-      .match:focus-within {
+      .match:focus-within{
         border: 1px solid #000;
         background: var(--c-black1);
         color: var(--c-white0);
       }
-      .match:focus-within a, .match:focus-within a:visited {
+      .match:focus-within a, .match:focus-within a:visited{
 
+      }
+
+      #header{
+        position: sticky;
+        top: 0;
       }
     </style>
 
-    <div>
-      <input id="txt-search"
-        placeholder="Search For Bookmark"
-        type="text"
-        autofocus />
+    <div id="app">
+      <div id="header">
+        <input id="txt-search"
+          placeholder="Search For Bookmark"
+          type="text"
+          autofocus />
+      </div>
       <div id="bookmarks-container"></div>
     </div>
     <script type="text/javascript" src="./override.js"></script>
