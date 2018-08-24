@@ -8,25 +8,28 @@
 <body>
     <style>
       :root{
-        --space0: 10px;
-        --space1: 20px;
-        --space2: 30px;
+        --space0: 5px;
+        --space1: 10px;
+        --space2: 20px;
         --space3: 40px;
-        --font-size0: 10px;
+        --font-size0: 15px;
         --font-size1: 20px;
         --font-size2: 30px;
         --font-size3: 40px;
-        --c-black0: black;
+        --c-black0: #000;
         --c-black1: #333;
         --c-black2: #999;
         --c-black3: #eee;
+        --c-white0: #fff;
+        --c-blue0: #78dce8;
       };
       *{
         box-sizing: border-box;
         font-size: var(--font-size1);
       }
       body{
-        background: var(--c-black3);
+        background: var(--c-black1);
+        color: var(--c-white0);
         padding: var(--space2);
       }
       #txt-search{
@@ -34,11 +37,24 @@
         width: 100%;
         font-size: var(--font-size1);
       }
+      .match, .no-match{
+        font-size: var(--font-size0);
+        margin-top: var(--space0);
+      }
+      .match a {
+        color: var(--c-blue0);
+        text-decoration: none;
+      }
     </style>
-    <input id="txt-search"
-      placeholder="Search For Bookmark"
-      type="text"
-      autofocus />
+    <div>
+      <h1>Search For Bookmark</h1>
+    </div>
+    <form>
+      <input id="txt-search"
+        placeholder="Search For Bookmark"
+        type="text"
+        autofocus />
+    </form>
     <div id="bookmarks-container"></div>
     <script type="text/javascript" src="./override.js"></script>
 </body>
