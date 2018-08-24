@@ -20,6 +20,9 @@
         --c-black1: #333;
         --c-black2: #999;
         --c-black3: #eee;
+        --c-grey0: #2c292d;
+        --c-grey1: #575558;
+        --c-yellow0: #ffd866;
         --c-white0: #fff;
         --c-blue0: #78dce8;
       };
@@ -28,14 +31,20 @@
         font-size: var(--font-size1);
       }
       body{
-        background: var(--c-black1);
+        background: var(--c-grey0);
         color: var(--c-white0);
         padding: var(--space2);
       }
       #txt-search{
-        padding: var(--space0);
+        padding: var(--space1);
+        margin-bottom: var(--space0);
         width: 100%;
         font-size: var(--font-size1);
+        color: var(--c-grey1);
+        background: var(--c-yellow0);
+        border: none;
+        position: sticky;
+        top: 0px;
       }
       .match, .no-match{
         font-size: var(--font-size0);
@@ -46,15 +55,11 @@
         text-decoration: none;
       }
     </style>
-    <div>
-      <h1>Search For Bookmark</h1>
-    </div>
-    <form>
-      <input id="txt-search"
-        placeholder="Search For Bookmark"
-        type="text"
-        autofocus />
-    </form>
+    <input id="txt-search"
+      placeholder="Search For Bookmark"
+      type="text"
+      autofocus />
+
     <div id="bookmarks-container"></div>
     <script type="text/javascript" src="./override.js"></script>
 </body>

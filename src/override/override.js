@@ -20,8 +20,6 @@
                 timer && clearTimeout(timer);
                 timer = setTimeout(
                     function(){
-                        console.log('keyword: ', keyword);
-
                         const matches = searchBookmarks(keyword, flattened_bookmarks);
                         populateBookmarks(matches);
                     },
@@ -36,8 +34,20 @@
             if(matches.length < 3){
                 dom = '<div class="no-match">No Matches</div>';
             } else {
-                matches.forEach(({url, title}) => {
-                    dom += `<div class="match"><a href="${url}">${title}</a></div>`;
+                matches.forEach(({url, title, breadcrumb}, idx) => {
+                    if(breadcrumb){
+                        dom += `<div class="match">
+                            <strong>${idx}. </strong>
+                            <span>[${breadcrumb}]</span>
+                            <a href="${url}">${title}</a>
+                        </div>`;
+                    }
+                    else {
+                        dom += `<div class="match">
+                            <strong>${idx}. </strong>
+                            <a href="${url}">${title}</a>
+                        </div>`;
+                    }
                 })
             }
 
@@ -56,7 +66,7 @@
         }
 
         function fuzzyMatchBookmark({id, title, url}, keyword){
-            return title.indexOf(keyword) >= 0;
+            return title.toLowerCase().indexOf(keyword) >= 0;
         }
 
 
@@ -93,6 +103,11 @@
 
                             parentId = mapNodesById[parentId].parentId;
                         }
+
+                        if(node.ancestorLabels.length > 0){
+                            node.breadcrumb = node.ancestorLabels.join(' > ');
+                        }
+
 
                         transformBookmark(node.children, mapNodesByUrl, mapNodesById);
                     }
