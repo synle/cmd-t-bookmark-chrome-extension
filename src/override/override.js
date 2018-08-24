@@ -37,14 +37,14 @@
                 matches.forEach(({url, title, breadcrumb}, idx) => {
                     if(breadcrumb){
                         dom += `<div class="match">
-                            <strong>${idx}. </strong>
-                            <span>[${breadcrumb}]</span>
+                            <span>${idx}. </span>
+                            <strong>[${breadcrumb}]</strong>
                             <a href="${url}">${title}</a>
                         </div>`;
                     }
                     else {
                         dom += `<div class="match">
-                            <strong>${idx}. </strong>
+                            <span>${idx}. </span>
                             <a href="${url}">${title}</a>
                         </div>`;
                     }

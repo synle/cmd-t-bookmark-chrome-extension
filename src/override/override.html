@@ -25,6 +25,7 @@
         --c-yellow0: #ffd866;
         --c-white0: #fff;
         --c-blue0: #78dce8;
+        --c-blue1: #39c;
       };
       *{
         box-sizing: border-box;
@@ -36,9 +37,10 @@
         padding: var(--space2);
       }
       #txt-search{
+        box-sizing: border-box;
         padding: var(--space1);
-        margin-bottom: var(--space0);
         width: 100%;
+        margin-bottom: var(--space0);
         font-size: var(--font-size1);
         color: var(--c-grey1);
         background: var(--c-yellow0);
@@ -46,21 +48,43 @@
         position: sticky;
         top: 0px;
       }
+      #bookmarks-container{
+        max-height: var(--app-height);
+        overflow: auto;
+        background: var(--c-white0);
+        color: var(--c-grey1);
+      }
       .match, .no-match{
         font-size: var(--font-size0);
-        margin-top: var(--space0);
+        padding: var(--space1);
+        border: 1px solid transparent;
       }
-      .match a {
-        color: var(--c-blue0);
+      .match a, .match a:visited {
+        color: var(--c-blue1);
         text-decoration: none;
+        font-weight: 700;
+      }
+      .match a:focus {
+        outline-color: transparent;
+        outline-style: none;
+      }
+      .match:focus-within {
+        border: 1px solid #000;
+        background: var(--c-black1);
+        color: var(--c-white0);
+      }
+      .match:focus-within a, .match:focus-within a:visited {
+
       }
     </style>
-    <input id="txt-search"
-      placeholder="Search For Bookmark"
-      type="text"
-      autofocus />
 
-    <div id="bookmarks-container"></div>
+    <div>
+      <input id="txt-search"
+        placeholder="Search For Bookmark"
+        type="text"
+        autofocus />
+      <div id="bookmarks-container"></div>
+    </div>
     <script type="text/javascript" src="./override.js"></script>
 </body>
 </html>
