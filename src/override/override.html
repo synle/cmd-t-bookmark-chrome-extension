@@ -56,6 +56,11 @@
         padding: var(--space1);
         border: 1px solid transparent;
       }
+      .match:focus-within{
+        border: 1px solid #000;
+        background: var(--c-black1);
+        color: var(--c-white0);
+      }
       .match a, .match a:visited{
         color: var(--c-blue1);
         text-decoration: none;
@@ -65,22 +70,21 @@
         outline-color: transparent;
         outline-style: none;
       }
-      .match:focus-within{
-        border: 1px solid #000;
-        background: var(--c-black1);
-        color: var(--c-white0);
-      }
-      .match:focus-within a, .match:focus-within a:visited{
 
+      .match a .highlight {
+        background: var(--c-grey0);
+        border-top: 2px solid red;
       }
+
 
       #header{
         position: sticky;
         top: 0;
       }
 
-      .highlight {
-        text-decoration: underline;
+      #app{
+        margin:auto;
+        max-width:1000px;
       }
     </style>
 

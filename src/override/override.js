@@ -80,17 +80,18 @@
                 dom = '<div class="no-match">No Matches</div>';
             } else {
                 matches.forEach(({url, title, breadcrumb}, idx) => {
+                    const highlightedTitle = getHighlightedTitle(title, keyword);
                     if(breadcrumb){
                         dom += `<div class="match">
                             <span>${idx}. </span>
                             <strong>[${breadcrumb}]</strong>
-                            <a href="${url}" tabindex="${idx + 1}">${title}</a>
+                            <a href="${url}" tabindex="${idx + 1}">${highlightedTitle}</a>
                         </div>`;
                     }
                     else {
                         dom += `<div class="match">
                             <span>${idx}. </span>
-                            <a href="${url}" tabindex="${idx + 1}">${title}</a>
+                            <a href="${url}" tabindex="${idx + 1}">${highlightedTitle}</a>
                         </div>`;
                     }
                 })
@@ -98,6 +99,12 @@
 
             document.querySelector('#bookmarks-container')
                 .innerHTML = dom;
+        }
+
+        function getHighlightedTitle(title, keyword){
+            return title.replace(new RegExp(keyword, 'gi'), function(matchedKeyword){
+                return `<span class="highlight">${matchedKeyword}</span>`;
+            });
         }
 
         function searchBookmarks(keyword, flattened_bookmarks){
@@ -120,7 +127,7 @@
          */
         async function getBookmarkTree(){
             return new Promise(resolve => {
-                chrome.bookmarks.getBookmarkTree(resolve)
+                chrome.bookmarks.getTree(resolve)
             })
         }
 
