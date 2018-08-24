@@ -145,14 +145,10 @@
                             node.ancestorLabels.unshift(parentNode.title);
 
                             parentId = mapNodesById[parentId].parentId;
-
-                            if(parentId === 0){
-                                break;
-                            }
                         }
 
                         if(node.ancestorLabels.length > 0){
-                            node.breadcrumb = node.ancestorLabels.join(' > ');
+                            node.breadcrumb = node.ancestorLabels.filter(n => !!n).join(' > ');
                         }
 
 
