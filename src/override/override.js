@@ -4,6 +4,22 @@
         const all_bookmarks = await getTree();
         const flattened_bookmarks = transformBookmark(all_bookmarks);
 
+        // fuse - used for fuzzy find
+        const fuse = new Fuse(
+            flattened_bookmarks, {
+              shouldSort: true,
+              threshold: 0.3,
+              location: 0,
+              distance: 100,
+              maxPatternLength: 32,
+              minMatchCharLength: 1,
+              keys: [
+                "title",
+                "url"
+            ]}
+        );
+
+
         // hook up the search
         document.querySelector('#txt-search').addEventListener(
             'input',
@@ -103,9 +119,13 @@
                 return [];
             }
 
-            return flattened_bookmarks.filter(
-                bookmark => fuzzyMatchBookmark(bookmark, keyword)
-            )
+            // use fuzzy find
+            return fuse.search(keyword);
+
+            // old legacy search
+            // return flattened_bookmarks.filter(
+            //     bookmark => fuzzyMatchBookmark(bookmark, keyword)
+            // )
         }
 
         function fuzzyMatchBookmark({id, title, url}, keyword){
