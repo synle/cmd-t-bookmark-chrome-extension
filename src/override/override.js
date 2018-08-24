@@ -1,11 +1,13 @@
 // init
 (
     async function(){
-        const all_bookmarks = await getTree();
+        const all_bookmarks = await getBookmarkTree();
         const flattened_bookmarks = transformBookmark(all_bookmarks);
 
         // hook up the search
-        document.querySelector('#txt-search').addEventListener(
+        const txtSearchElem = document.querySelector('#txt-search');
+        txtSearchElem.value = '';
+        txtSearchElem.addEventListener(
             'input',
             (e) => onUpdateBookmark(e.target.value.trim())
         )
@@ -113,12 +115,22 @@
         }
 
 
-        async function getTree(){
+        /**
+         * @return {Tree} get the list of bookmark trees from Chrome...
+         */
+        async function getBookmarkTree(){
             return new Promise(resolve => {
-                chrome.bookmarks.getTree(resolve)
+                chrome.bookmarks.getBookmarkTree(resolve)
             })
         }
 
+
+        /**
+         * @param  {[type]} nodes         [description]
+         * @param  {[type]} mapNodesByUrl [description]
+         * @param  {[type]} mapNodesById  [description]
+         * @return {Array} flatten the list of bookmark tree nodes, and add ancestor
+         */
         function transformBookmark(nodes, mapNodesByUrl, mapNodesById){
             nodes = [].concat(nodes);
             mapNodesByUrl = mapNodesByUrl || {};
