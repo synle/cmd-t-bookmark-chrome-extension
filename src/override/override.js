@@ -1,9 +1,16 @@
 // init
 (
     async function(){
-        const all_bookmarks = await getBookmarkTree();
-        let flattened_bookmarks = transformBookmark(all_bookmarks);
+        let flattened_bookmarks;
+
+        console.time('app ready');
+        console.time('flatten bookmarks');
+        flattened_bookmarks = await transformBookmark();
+        console.timeEnd('flatten bookmarks');
+        console.timeEnd('app ready');
+
         let current_keyword = '';
+
 
         // hook up the search
         const txtSearchElem = document.querySelector('#txt-search');
@@ -37,10 +44,14 @@
                             });
 
                             // refresh the ui
-                            onUpdateBookmark(current_keyword, () => {
+                            onUpdateBookmark(current_keyword, async () => {
                                 // move on to the first node
                                 const firstElem = document.querySelector(`.match a`);
                                 firstElem && firstElem.focus();
+
+                                // trigger the call to do full reload here
+                                // force reload
+                                transformBookmark(true);
                             });
                         }
                         break;
@@ -77,14 +88,17 @@
             }
         )
 
+        // click to open bookmark
         document.addEventListener('click', function(e){
             const target = e.target;
-            if(target.classList.contains('match')){
-                const href = target.querySelector('a').href;
+            const parentTarget = target.parentElement || target;
+
+            if(target.classList.contains('match') || parentTarget.classList.contains('match')){
+                const href = (target.querySelector('a') || parentTarget.querySelector('a')).href;
                 window.open(href, '_blank');
                 e.preventDefault();
             }
-        }, true)
+        })
 
         // clean up
         const onUpdateBookmark = (function(){
@@ -182,71 +196,12 @@
         }
 
 
-        /**
-         * @param  {[type]} nodes         [description]
-         * @param  {[type]} mapNodesByUrl [description]
-         * @param  {[type]} mapNodesById  [description]
-         * @return {Array} flatten the list of bookmark tree nodes, and add ancestor
-         */
-        function transformBookmark(nodes, mapNodesByUrl, mapNodesById){
-            nodes = [].concat(nodes);
-            mapNodesByUrl = mapNodesByUrl || {};
-            mapNodesById = mapNodesById || {};
-
-            nodes.filter(node => !!node)
-                .forEach(node => {
-                    let {id, parentId, url} = node;
-                    if(id){
-                        mapNodesById[id] = node;
-
-                        if(url){
-                            mapNodesByUrl[url] = node;
-                        }
-
-                        node.ancestorIds = [];
-                        node.ancestorLabels = [];
-
-                        // traverse up and get all the name prefix
-                        while(parentId !== undefined && parentId !== 0){
-                            const parentNode = mapNodesById[parentId];
-
-                            node.ancestorIds.unshift(parentNode.id);
-                            node.ancestorLabels.unshift(parentNode.title);
-
-                            parentId = mapNodesById[parentId].parentId;
-                        }
-
-                        if(node.ancestorLabels.length > 0){
-                            node.breadcrumb = node.ancestorLabels.filter(n => !!n).join(' > ');
-                        }
-
-
-                        transformBookmark(node.children, mapNodesByUrl, mapNodesById);
-                    }
-                })
-
-            return Object.values(mapNodesByUrl)
-                // ignore bookmarklet
-                .filter(({url}) => url.indexOf(`script:(`) !== 0)
-                .map(bookmark_object => {
-                    bookmark_object.clean_url = (bookmark_object.url || '').replace('https://', '')
-                        .replace('http://', '')
-                        .replace('www.', '');
-
-                    return bookmark_object;
-                })
-                .sort((a, b) => {
-                    if(a.clean_url < b.clean_url){
-                        return -1;
-                    } else if (a.clean_url > b.clean_url){
-                        return 1;
-                    } else if(a.title < b.title){
-                        return -1;
-                    } else if (a.title > b.title){
-                        return 1;
-                    }
-                    return 0;
-                })
+        function transformBookmark(forceReload = false){
+            return new Promise(resolve => {
+                chrome.runtime.sendMessage({message: "GET_BOOKMARKS", forceReload}, function(response) {
+                  resolve(response);
+                });
+            });
         }
     }
 )()
