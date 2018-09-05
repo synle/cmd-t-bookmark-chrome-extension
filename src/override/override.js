@@ -2,7 +2,8 @@
 (
     async function(){
         const all_bookmarks = await getBookmarkTree();
-        const flattened_bookmarks = transformBookmark(all_bookmarks);
+        let flattened_bookmarks = transformBookmark(all_bookmarks);
+        let current_keyword = '';
 
         // hook up the search
         const txtSearchElem = document.querySelector('#txt-search');
@@ -14,7 +15,7 @@
 
         // navigate results by keyboard
         document.addEventListener('keydown',
-            (e) => {
+            async (e) => {
                 const {key} = e;
                 let matches = [...document.querySelectorAll(`.match a`)];
                 if(matches.length === 0){
@@ -22,31 +23,55 @@
                 }
 
                 let currentFocusedElem = document.querySelector(':focus');
-                const isUp = key === 'ArrowUp';
-                const isDown = key === 'ArrowDown';
 
-                if(isUp || isDown){
-                    if(!currentFocusedElem){
-                        // focus on the first match
-                        currentFocusedElem = matches ? matches[0] : null;
-                    } else {
-                        const delta = isUp ? -1 : 1;
-                        let newTabIndex = currentFocusedElem.tabIndex + delta;
+                switch(key){
+                    case 'Delete':
+                        const bookmark_id = currentFocusedElem.dataset.bookmark_id;
+                        if(bookmark_id && confirm('Do you want to delete this bookmark?')){
+                            // trigger the api to delete it from chrome
+                            await deleteBookmark(bookmark_id);
 
-                        // boundary
-                        newTabIndex = Math.min(matches.length + 1, newTabIndex);
-                        newTabIndex = Math.max(1, newTabIndex);
+                            // remove the node
+                            flattened_bookmarks = flattened_bookmarks.filter(({id}) => {
+                                return id !== bookmark_id;
+                            });
 
-                        // set the focus
-                        currentFocusedElem = matches[newTabIndex - 1];
-                    }
+                            // refresh the ui
+                            onUpdateBookmark(current_keyword, () => {
+                                // move on to the first node
+                                document.querySelector(`.match a`).focus();
+                            });
+                        }
+                        break;
+                    case 'ArrowUp':
+                    case 'ArrowDown':
+                        const isUp = key === 'ArrowUp';
+                        const isDown = key === 'ArrowDown';
+
+                        if(isUp || isDown){
+                            if(!currentFocusedElem){
+                                // focus on the first match
+                                currentFocusedElem = matches ? matches[0] : null;
+                            } else {
+                                const delta = isUp ? -1 : 1;
+                                let newTabIndex = currentFocusedElem.tabIndex + delta;
+
+                                // boundary
+                                newTabIndex = Math.min(matches.length + 1, newTabIndex);
+                                newTabIndex = Math.max(1, newTabIndex);
+
+                                // set the focus
+                                currentFocusedElem = matches[newTabIndex - 1];
+                            }
 
 
-                    // focus on it
-                    currentFocusedElem && currentFocusedElem.focus();
+                            // focus on it
+                            currentFocusedElem && currentFocusedElem.focus();
 
-                    // stop the scrolling
-                    e.preventDefault();
+                            // stop the scrolling
+                            e.preventDefault();
+                        }
+                        break;
                 }
             }
         )
@@ -56,14 +81,16 @@
             // debounce
             let timer;
 
-            return function(keyword){
+            return function(keyword, cb){
+                current_keyword = keyword;
+
                 // clear previous debounced
                 timer && clearTimeout(timer);
                 timer = setTimeout(
                     function(){
-                        const matches = searchBookmarks(keyword, flattened_bookmarks);
-                        console.log('matches', matches.length)
-                        populateBookmarks(keyword, matches);
+                        const matches = searchBookmarks(current_keyword, flattened_bookmarks);
+                        populateBookmarks(current_keyword, matches);
+                        cb && cb();
                     },
                     500
                 )
@@ -79,13 +106,13 @@
             else if(matches.length === 0){
                 dom = '<div class="no-match">No Matches</div>';
             } else {
-                matches.forEach(({url, title, breadcrumb}, idx) => {
+                matches.forEach(({id, url, title, breadcrumb}, idx) => {
                     const highlightedTitle = getHighlightedTitle(title, keyword);
                     const highlightedUrl = getHighlightedUrl(url, keyword);
 
                     dom += `<div class="match">
                         <span class="match-url">${highlightedUrl}</span>
-                        <a href="${url}" tabindex="${idx + 1}" class="match-label">${highlightedTitle}</a>
+                        <a href="${url}" tabindex="${idx + 1}" data-bookmark_id="${id}" class="match-label">${highlightedTitle}</a>
                     </div>`;
                 })
             }
@@ -137,6 +164,15 @@
             return new Promise(resolve => {
                 chrome.bookmarks.getTree(resolve)
             })
+        }
+
+        async function deleteBookmark(to_delete_bookmark_id){
+            return new Promise( resolve => {
+                chrome.bookmarks.remove(to_delete_bookmark_id, () => {
+                    console.debug('done - delete', to_delete_bookmark_id);
+                    resolve();
+                })
+            });
         }
 
 
