@@ -1,41 +1,87 @@
 // init
 (
   async function(){
-    let all_bookmarks, flattened_bookmarks;
+    let  flattened_bookmarks;
+
+    console.time('App ready');
     reloadData();
+    console.timeEnd('App ready');
 
     async function reloadData(){
-      console.time('app ready');
-      console.time('get bookmarks');
-      all_bookmarks = await getBookmarkTree();
-      console.timeEnd('get bookmarks');
-
-      console.time('flatten bookmarks');
+      console.debug('reloadData', Date.now());
+      const all_bookmarks = await getBookmarkTree();
       flattened_bookmarks = transformBookmark(all_bookmarks);
-      console.timeEnd('flatten bookmarks');
-      console.timeEnd('app ready');
+    }
+
+    function reloadDataAndUpdateTabs(){
+      reloadData().then(updateAllNewTabPages)
     }
 
 
     // reload itself every minute
     setInterval(
       reloadData,
-      60000
+      1000 * 60 * 2
     )
 
+
+    // set up channel to listen from background
     chrome.runtime.onMessage.addListener(
-      async function(request, sender, sendResponse) {
+      function(request, sender, sendResponse) {
+        const senderTabId = sender.tab.id;
+
         switch(request.message){
           case 'GET_BOOKMARKS':
-          default:
             if(request.forceReload === true){
-              await reloadData();
+              // hard reload should trigger update all new pages...
+              reloadData();
             }
-            sendResponse(flattened_bookmarks);
+            else {
+              // this is not a hard reload
+              // we should just update the sender with data
+              updateNewPageWithData(senderTabId)
+            }
+            break;
+
+          case 'DELETE_BOOKMARK':
+            deleteBookmark(request.to_delete_bookmark_id);
             break;
         }
       }
     );
+
+
+    // trigger update children when things change...
+    chrome.bookmarks.onChanged.addListener(reloadDataAndUpdateTabs)
+    chrome.bookmarks.onRemoved.addListener(reloadDataAndUpdateTabs)
+    chrome.bookmarks.onCreated.addListener(reloadDataAndUpdateTabs)
+
+
+    function updateAllNewTabPages(){
+      // get all the new tab pages
+      chrome.tabs.query({}, function(tabs) {
+        const tabIds = tabs.filter(t => t.url === 'chrome://newtab/')
+          .map(t => t.id);
+
+        // update all the child pages with new data...
+        updateNewPageWithData(tabIds)
+      });
+    }
+    window.updateAllNewTabPages= updateAllNewTabPages;
+
+
+    function updateNewPageWithData(tabIds){
+      tabIds = [].concat(tabIds);
+
+      console.debug('updateNewPageWithData', tabIds)
+
+      // update all the child pages with new data...
+      tabIds.forEach(
+        tabId => {
+          chrome.tabs.sendMessage(tabId, flattened_bookmarks);
+        }
+      )
+    }
 
     /**
      * @return {Tree} get the list of bookmark trees from Chrome...
@@ -111,6 +157,17 @@
           }
           return 0;
         })
+    }
+
+
+    async function deleteBookmark(to_delete_bookmark_id){
+      console.time('Delete Bookmark: ' + to_delete_bookmark_id)
+      return new Promise( resolve => {
+        chrome.bookmarks.remove(to_delete_bookmark_id, () => {
+          console.timeEnd('Delete Bookmark: ' + to_delete_bookmark_id)
+          resolve();
+        })
+      });
     }
   }
 )()

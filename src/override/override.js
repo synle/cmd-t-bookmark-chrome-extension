@@ -1,13 +1,22 @@
 // init
 (
   async function(){
-    let flattened_bookmarks;
+    let flattened_bookmarks = [], deferredLoaded = new Deferred();
+    let current_keyword = '';
 
     console.time('app ready');
-    flattened_bookmarks = await transformBookmark();
-    console.timeEnd('app ready');
 
-    let current_keyword = '';
+    // listen to background page to update myself...
+    // chrome.runtime.onMessage.addListener
+    chrome.extension.onMessage.addListener(function(request, sender, sendResponse) {
+      console.debug('Total bookmarks in message:', request && request.length);
+      flattened_bookmarks = request;
+      deferredLoaded.resolve();
+    })
+
+    sendGetBookmarkRequestToBackgroundPage();
+    await deferredLoaded.promise;
+    console.timeEnd('app ready');
 
 
     // hook up the search
@@ -33,54 +42,15 @@
           case 'Delete':
             const bookmark_id = currentFocusedElem.dataset.bookmark_id;
             if(bookmark_id && confirm('Do you want to delete this bookmark?')){
-              // trigger the api to delete it from chrome
-              await deleteBookmark(bookmark_id);
-
               // remove the node
-              flattened_bookmarks = flattened_bookmarks.filter(({id}) => {
-                return id !== bookmark_id;
-              });
+              currentFocusedElem.parentElement.remove();
 
-              // refresh the ui
-              onUpdateBookmark(current_keyword, async () => {
-                // move on to the first node
-                const firstElem = document.querySelector(`.match a`);
-                firstElem && firstElem.focus();
-
-                // trigger the call to do full reload here
-                // force reload
-                transformBookmark(true);
-              });
+              // trigger the api to delete it from chrome
+              sendDeleteBookmark(bookmark_id);
             }
             break;
           case 'ArrowUp':
           case 'ArrowDown':
-            const isUp = key === 'ArrowUp';
-            const isDown = key === 'ArrowDown';
-
-            if(isUp || isDown){
-              if(!currentFocusedElem){
-                // focus on the first match
-                currentFocusedElem = matches ? matches[0] : null;
-              } else {
-                const delta = isUp ? -1 : 1;
-                let newTabIndex = currentFocusedElem.tabIndex + delta;
-
-                // boundary
-                newTabIndex = Math.min(matches.length + 1, newTabIndex);
-                newTabIndex = Math.max(1, newTabIndex);
-
-                // set the focus
-                currentFocusedElem = matches[newTabIndex - 1];
-              }
-
-
-              // focus on it
-              currentFocusedElem && currentFocusedElem.focus();
-
-              // stop the scrolling
-              e.preventDefault();
-            }
             break;
         }
       }
@@ -134,7 +104,7 @@
 
           dom += `<div class="match">
             <span class="match-url">${highlightedUrl}</span>
-            <a href="${url}" tabindex="${idx + 1}" data-bookmark_id="${id}" class="match-label">${highlightedTitle}</a>
+            <a href="${url}" data-bookmark_id="${id}" class="match-label">${highlightedTitle}</a>
           </div>`;
         })
       }
@@ -184,22 +154,22 @@
       })
     }
 
-    async function deleteBookmark(to_delete_bookmark_id){
-      return new Promise( resolve => {
-        chrome.bookmarks.remove(to_delete_bookmark_id, () => {
-          console.debug('done - delete', to_delete_bookmark_id);
-          resolve();
-        })
-      });
+
+    function sendGetBookmarkRequestToBackgroundPage(forceReload = false){
+      // send the message to the background asking for changes
+      _sendMessageToBackground({message: "GET_BOOKMARKS", forceReload}, function(response) {});
+    }
+
+    function sendDeleteBookmark(to_delete_bookmark_id = -1){
+      // send the message to the background asking for changes
+      _sendMessageToBackground({message: "DELETE_BOOKMARK", to_delete_bookmark_id}, function(response) {});
     }
 
 
-    function transformBookmark(forceReload = false){
-      return new Promise(resolve => {
-        chrome.runtime.sendMessage({message: "GET_BOOKMARKS", forceReload}, function(response) {
-          resolve(response);
-        });
-      });
+    function _sendMessageToBackground(message, cb){
+        setTimeout(
+            () => chrome.runtime.sendMessage(message, cb),
+            200
+        )
     }
-  }
-)()
+})()
