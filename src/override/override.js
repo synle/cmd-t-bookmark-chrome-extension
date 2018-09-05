@@ -39,7 +39,8 @@
                             // refresh the ui
                             onUpdateBookmark(current_keyword, () => {
                                 // move on to the first node
-                                document.querySelector(`.match a`).focus();
+                                const firstElem = document.querySelector(`.match a`);
+                                firstElem && firstElem.focus();
                             });
                         }
                         break;
@@ -76,6 +77,15 @@
             }
         )
 
+        document.addEventListener('click', function(e){
+            const target = e.target;
+            if(target.classList.contains('match')){
+                const href = target.querySelector('a').href;
+                window.open(href, '_blank');
+                e.preventDefault();
+            }
+        }, true)
+
         // clean up
         const onUpdateBookmark = (function(){
             // debounce
@@ -106,9 +116,9 @@
             else if(matches.length === 0){
                 dom = '<div class="no-match">No Matches</div>';
             } else {
-                matches.forEach(({id, url, title, breadcrumb}, idx) => {
+                matches.forEach(({id, url, title, breadcrumb, clean_url}, idx) => {
                     const highlightedTitle = getHighlightedTitle(title, keyword);
-                    const highlightedUrl = getHighlightedUrl(url, keyword);
+                    const highlightedUrl = getHighlightedUrl(clean_url, keyword);
 
                     dom += `<div class="match">
                         <span class="match-url">${highlightedUrl}</span>
@@ -134,10 +144,6 @@
 
 
         function getHighlightedUrl(title, keyword){
-            title = title.replace('https://', '')
-                        .replace('http://', '')
-                        .replace('www.', '')
-
             return getHighlightedString(title, keyword);
         }
 
@@ -221,7 +227,26 @@
 
             return Object.values(mapNodesByUrl)
                 // ignore bookmarklet
-                .filter(({url}) => url.indexOf(`script:(`) !== 0);
+                .filter(({url}) => url.indexOf(`script:(`) !== 0)
+                .map(bookmark_object => {
+                    bookmark_object.clean_url = (bookmark_object.url || '').replace('https://', '')
+                        .replace('http://', '')
+                        .replace('www.', '');
+
+                    return bookmark_object;
+                })
+                .sort((a, b) => {
+                    if(a.clean_url < b.clean_url){
+                        return -1;
+                    } else if (a.clean_url > b.clean_url){
+                        return 1;
+                    } else if(a.title < b.title){
+                        return -1;
+                    } else if (a.title > b.title){
+                        return 1;
+                    }
+                    return 0;
+                })
         }
     }
 )()

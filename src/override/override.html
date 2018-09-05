@@ -18,7 +18,7 @@
         --font-size3: 40px;
         --c-black0: #000;
         --c-black1: #333;
-        --c-black2: #666;
+        --c-black2: #444;
         --c-black3: #999;
         --c-black4: #eee;
         --c-grey0: #2c292d;
@@ -58,6 +58,13 @@
         font-size: var(--font-size0);
         padding: var(--space1);
         border: 1px solid transparent;
+      }
+      .match{
+        cursor: pointer;
+      }
+      .match:hover{
+        background: var(--c-black2);
+        color: var(--c-white0);
       }
       .match:focus-within{
         border: 1px solid #000;
