@@ -10,7 +10,7 @@
     // chrome.runtime.onMessage.addListener
     chrome.extension.onMessage.addListener(function(request, sender, sendResponse) {
       console.debug('Total bookmarks in message:', request && request.length);
-      flattened_bookmarks = request;
+      flattened_bookmarks = request || [];
       deferredLoaded.resolve();
     })
 
@@ -49,8 +49,20 @@
               sendDeleteBookmark(bookmark_id);
             }
             break;
+
           case 'ArrowUp':
           case 'ArrowDown':
+            // navigate with keyboard
+            let newIdxToFocus = matches.findIndex(match => match === currentFocusedElem);
+            if(newIdxToFocus < 0){
+                newIdxToFocus = 0;
+            }
+            newIdxToFocus = getFocusIndexForNavigation(
+                newIdxToFocus,
+                key === 'ArrowDown' ? 1 : -1,
+                matches.length
+            );
+            matches[newIdxToFocus].focus();
             break;
         }
       }
@@ -152,6 +164,13 @@
       return new Promise(resolve => {
         chrome.bookmarks.getTree(resolve)
       })
+    }
+
+    function getFocusIndexForNavigation(newIdxToFocus, delta, matchesMaxLength){
+        newIdxToFocus += delta;
+        newIdxToFocus = Math.max(0, newIdxToFocus);
+        newIdxToFocus = Math.min(newIdxToFocus, matchesMaxLength - 1);
+        return newIdxToFocus;
     }
 
 

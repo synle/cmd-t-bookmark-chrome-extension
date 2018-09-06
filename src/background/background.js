@@ -20,8 +20,8 @@
 
     // reload itself every minute
     setInterval(
-      reloadData,
-      1000 * 60 * 2
+      reloadDataAndUpdateTabs,
+      1000 * 60 * 10
     )
 
 
