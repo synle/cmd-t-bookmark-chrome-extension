@@ -12,6 +12,7 @@
       console.debug('Total bookmarks in message:', request && request.length);
       flattened_bookmarks = request || [];
       deferredLoaded.resolve();
+      sendResponse('Child Tab Received')
     })
 
     sendGetBookmarkRequestToBackgroundPage();
@@ -37,6 +38,10 @@
         }
 
         let currentFocusedElem = document.querySelector(':focus');
+        let newIdxToFocus = matches.findIndex(match => match === currentFocusedElem);
+        if(newIdxToFocus < 0){
+            newIdxToFocus = 0;
+        }
 
         switch(key){
           case 'Delete':
@@ -47,22 +52,24 @@
 
               // trigger the api to delete it from chrome
               sendDeleteBookmark(bookmark_id);
+
+              // focus on the previous element
+              newIdxToFocus--;
+              newIdxToFocus = Math.max(0, newIdxToFocus);
+              [...document.querySelectorAll(`.match a`)][newIdxToFocus].focus();
             }
             break;
 
           case 'ArrowUp':
           case 'ArrowDown':
             // navigate with keyboard
-            let newIdxToFocus = matches.findIndex(match => match === currentFocusedElem);
-            if(newIdxToFocus < 0){
-                newIdxToFocus = 0;
-            }
             newIdxToFocus = getFocusIndexForNavigation(
                 newIdxToFocus,
                 key === 'ArrowDown' ? 1 : -1,
                 matches.length
             );
             matches[newIdxToFocus].focus();
+            e.preventDefault();
             break;
         }
       }

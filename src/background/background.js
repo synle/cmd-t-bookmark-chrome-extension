@@ -3,18 +3,29 @@
   async function(){
     let  flattened_bookmarks;
 
-    console.time('App ready');
-    reloadData();
-    console.timeEnd('App ready');
-
     async function reloadData(){
       console.debug('reloadData', Date.now());
       const all_bookmarks = await getBookmarkTree();
       flattened_bookmarks = transformBookmark(all_bookmarks);
     }
 
-    function reloadDataAndUpdateTabs(){
-      reloadData().then(updateAllNewTabPages)
+    // debounce this guyh
+    const reloadDataAndUpdateTabs = _debounce(
+      function reloadDataAndUpdateTabs(){
+        reloadData().then(updateAllNewTabPages)
+      },
+      200
+    )
+
+    function _debounce(cb, timeOut) {
+      let timer;
+
+      return function(){
+        timer && clearTimeout(timer);
+        timer = setTimeout(() => {
+          cb();
+        }, timeOut);
+      }
     }
 
 
@@ -78,7 +89,10 @@
       // update all the child pages with new data...
       tabIds.forEach(
         tabId => {
-          chrome.tabs.sendMessage(tabId, flattened_bookmarks);
+          // console.debug('updateNewPageWithData > tab', tabId)
+          chrome.tabs.sendMessage(tabId, flattened_bookmarks, (response) => {
+            // console.debug('updateNewPageWithData > tab > ChildTab Responded', response)
+          });
         }
       )
     }
@@ -98,46 +112,53 @@
      * @param  {[type]} mapNodesById  [description]
      * @return {Array} flatten the list of bookmark tree nodes, and add ancestor
      */
-    function transformBookmark(nodes, mapNodesByUrl, mapNodesById){
-      nodes = [].concat(nodes);
-      mapNodesByUrl = mapNodesByUrl || {};
-      mapNodesById = mapNodesById || {};
+    function transformBookmark(nodes){
+      const mapNodesById = {};
+      const queue = [].concat(nodes);
+      const results = [];
 
-      nodes.filter(node => !!node)
-        .forEach(node => {
-          let {id, parentId, url} = node;
-          if(id){
-            mapNodesById[id] = node;
+      while(queue.length > 0){
+        const currentNodeList = [].concat(queue.shift());
+        currentNodeList
+          .filter(
+            (node) => node && !!node.id
+          )
+          .forEach(
+            (node) => {
+              let {id, parentId, url} = node;
 
-            if(url){
-              mapNodesByUrl[url] = node;
+              // store it first
+              mapNodesById[id] = node;
+              node.ancestorIds = [];
+              node.ancestorLabels = [];
+
+              // traverse up and get all the name prefix
+              while(parentId !== undefined && parentId !== 0){
+                const parentNode = mapNodesById[parentId];
+
+                node.ancestorIds.unshift(parentNode.id);
+                node.ancestorLabels.unshift(parentNode.title);
+
+                parentId = mapNodesById[parentId].parentId;
+              }
+
+              // do breadcrumb
+              if(node.ancestorLabels.length > 0){
+                node.breadcrumb = node.ancestorLabels.filter(n => !!n).join(' > ');
+              }
+
+              // if there are children, then add them to the queue
+              if(node.children && node.children.length > 0){
+                queue.push(node.children);
+              }
+
+              // append node
+              results.push(node)
             }
+          );
+      }
 
-            node.ancestorIds = [];
-            node.ancestorLabels = [];
-
-            // traverse up and get all the name prefix
-            while(parentId !== undefined && parentId !== 0){
-              const parentNode = mapNodesById[parentId];
-
-              node.ancestorIds.unshift(parentNode.id);
-              node.ancestorLabels.unshift(parentNode.title);
-
-              parentId = mapNodesById[parentId].parentId;
-            }
-
-            if(node.ancestorLabels.length > 0){
-              node.breadcrumb = node.ancestorLabels.filter(n => !!n).join(' > ');
-            }
-
-
-            transformBookmark(node.children, mapNodesByUrl, mapNodesById);
-          }
-        })
-
-      return Object.values(mapNodesByUrl)
-        // ignore bookmarklet
-        .filter(({url}) => url.indexOf(`script:(`) !== 0)
+      return results.filter(({url}) => !!url && url.indexOf(`script:(`) !== 0)// ignore book-marklet and no url nodes
         .map(bookmark_object => {
           bookmark_object.clean_url = (bookmark_object.url || '').replace('https://', '')
             .replace('http://', '')
@@ -145,7 +166,7 @@
 
           return bookmark_object;
         })
-        .sort((a, b) => {
+        .sort((a, b) => {// sort by clean url, then by title
           if(a.clean_url < b.clean_url){
             return -1;
           } else if (a.clean_url > b.clean_url){
@@ -159,7 +180,6 @@
         })
     }
 
-
     async function deleteBookmark(to_delete_bookmark_id){
       console.time('Delete Bookmark: ' + to_delete_bookmark_id)
       return new Promise( resolve => {
@@ -169,5 +189,11 @@
         })
       });
     }
+
+
+    // init app
+    console.time('App ready');
+    reloadDataAndUpdateTabs();
+    console.timeEnd('App ready');
   }
 )()
