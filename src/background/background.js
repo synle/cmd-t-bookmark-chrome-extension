@@ -57,6 +57,10 @@
           case 'DELETE_BOOKMARK':
             deleteBookmark(request.to_delete_bookmark_id);
             break;
+
+          case 'UPDATE_BOOKMARK':
+            updateBookmark(request.to_update_bookmark);
+            break;
         }
       }
     );
@@ -187,6 +191,22 @@
           console.timeEnd('Delete Bookmark: ' + to_delete_bookmark_id)
           resolve();
         })
+      });
+    }
+
+    async function updateBookmark(to_update_bookmark){
+      console.time('Update Bookmark: ' + to_update_bookmark.id)
+      return new Promise( resolve => {
+        chrome.bookmarks.update(
+          to_update_bookmark.id,
+          {
+            title: to_update_bookmark.title,
+          },
+          () => {
+            console.timeEnd('Update Bookmark: ' + to_update_bookmark.id)
+            resolve();
+          }
+        )
       });
     }
 
