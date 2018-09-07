@@ -150,13 +150,13 @@
         dom = '';
       }
       else if(keyword.length <= 2){
-        dom = `<div class="result-row">Enter more than 2 characters to search</div>`;
+        dom = `<div class="result-row p0">Enter more than 2 characters to search</div>`;
       }
       else if(matches.length === 0){
-        dom = `<div class="result-row no-match">No Matches</div>`;
+        dom = `<div class="result-row no-match p0">No Matches</div>`;
       } else {
         dom = matches.reduce(
-          (acc, current_bookmark) => acc + `<div class="result-row match">${_getBookmarkDom(current_bookmark)}</div>`,
+          (acc, current_bookmark) => acc + `<div class="result-row match p0">${_getBookmarkDom(current_bookmark)}</div>`,
           ''
         )
       }
