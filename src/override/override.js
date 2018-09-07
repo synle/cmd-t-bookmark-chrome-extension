@@ -2,7 +2,7 @@
 (
   async function(){
     let flattened_bookmarks = [], deferredLoaded = new Deferred();
-    let current_keyword = '';
+    let current_keyword = '', current_matches = [];
 
     console.time('app ready');
 
@@ -31,21 +31,51 @@
     // navigate results by keyboard
     document.addEventListener('keydown',
       async (e) => {
-        const {key} = e;
-        let matches = [...document.querySelectorAll(`.match a`)];
-        if(matches.length === 0){
+        let bookmark_id;
+        const {key, ctrlKey} = e;
+        if(ctrlKey === true){
+          return;
+        }
+
+        let domMatches = [...document.querySelectorAll(`.match a`)];
+        if(domMatches.length === 0){
           return;
         }
 
         let currentFocusedElem = document.querySelector(':focus');
-        let newIdxToFocus = matches.findIndex(match => match === currentFocusedElem);
-        if(newIdxToFocus < 0){
-            newIdxToFocus = 0;
-        }
+        let newIdxToFocus = domMatches.findIndex(match => match === currentFocusedElem);
 
         switch(key){
+          case 'r': // rename
+            // make sure we have selected something
+            bookmark_id = currentFocusedElem.dataset.bookmark_id;
+            if(bookmark_id){
+              const foundTargetMatch = current_matches.find(targetBookmark => targetBookmark.id === bookmark_id);
+
+              if(foundTargetMatch){
+                const newBookmarkName = (prompt(
+                  `New name for: \n${foundTargetMatch.url}`,
+                  foundTargetMatch.title
+                ) || '').trim();
+
+                if(newBookmarkName.length > 0){
+                  foundTargetMatch.title = newBookmarkName;
+                  sendUpdateBookmark(foundTargetMatch);
+
+
+                  const parentElement = currentFocusedElem.parentElement;
+
+                  // update the dom itself...
+                  parentElement.innerHTML = _getBookmarkDom(foundTargetMatch);
+
+                  // refocus on the dom...
+                  parentElement.querySelector('a').focus();
+                }
+              }
+            }
+            break;
           case 'Delete':
-            const bookmark_id = currentFocusedElem.dataset.bookmark_id;
+            bookmark_id = currentFocusedElem.dataset.bookmark_id;
             if(bookmark_id && confirm('Do you want to delete this bookmark?')){
               // remove the node
               currentFocusedElem.parentElement.remove();
@@ -57,6 +87,10 @@
               newIdxToFocus--;
               newIdxToFocus = Math.max(0, newIdxToFocus);
               [...document.querySelectorAll(`.match a`)][newIdxToFocus].focus();
+
+
+              // remove the removed
+              current_matches = current_matches.filter(targetBookmark => targetBookmark.id !== bookmark_id);
             }
             break;
 
@@ -66,9 +100,9 @@
             newIdxToFocus = getFocusIndexForNavigation(
                 newIdxToFocus,
                 key === 'ArrowDown' ? 1 : -1,
-                matches.length
+                domMatches.length
             );
-            matches[newIdxToFocus].focus();
+            domMatches[newIdxToFocus].focus();
             e.preventDefault();
             break;
         }
@@ -99,8 +133,9 @@
         timer && clearTimeout(timer);
         timer = setTimeout(
           function(){
-            const matches = searchBookmarks(current_keyword, flattened_bookmarks);
-            populateBookmarks(current_keyword, matches);
+            current_matches = searchBookmarks(current_keyword, flattened_bookmarks);
+
+            populateBookmarks(current_keyword, current_matches);
             cb && cb();
           },
           500
@@ -111,25 +146,33 @@
 
     function populateBookmarks(keyword, matches){
       let dom = '';
-      if(keyword.length <= 2){
-        dom = '';// dont do anything for less than 2 chars..
+      if(keyword.length === 0){
+        dom = '';
+      }
+      else if(keyword.length <= 2){
+        dom = `<div class="result-row">Enter more than 2 characters to search</div>`;
       }
       else if(matches.length === 0){
-        dom = '<div class="no-match">No Matches</div>';
+        dom = `<div class="result-row no-match">No Matches</div>`;
       } else {
-        matches.forEach(({id, url, title, breadcrumb, clean_url}, idx) => {
-          const highlightedTitle = getHighlightedTitle(title, keyword);
-          const highlightedUrl = getHighlightedUrl(clean_url, keyword);
-
-          dom += `<div class="match">
-            <span class="match-url">${highlightedUrl}</span>
-            <a href="${url}" data-bookmark_id="${id}" class="match-label">${highlightedTitle}</a>
-          </div>`;
-        })
+        dom = matches.reduce(
+          (acc, current_bookmark) => acc + `<div class="result-row match">${_getBookmarkDom(current_bookmark)}</div>`,
+          ''
+        )
       }
 
       document.querySelector('#bookmarks-container')
         .innerHTML = dom;
+    }
+
+    function _getBookmarkDom({id, url, title, breadcrumb, clean_url}, keyword = current_keyword){
+      keyword = keyword || current_keyword;
+
+      const highlightedTitle = getHighlightedTitle(title, keyword);
+      const highlightedUrl = getHighlightedUrl(clean_url, keyword);
+
+      return `<span class="match-url">${highlightedUrl}</span>
+        <a href="${url}" data-bookmark_id="${id}" class="match-label">${highlightedTitle}</a>`;
     }
 
     function getHighlightedString(title, keyword){
@@ -182,13 +225,15 @@
 
 
     function sendGetBookmarkRequestToBackgroundPage(forceReload = false){
-      // send the message to the background asking for changes
       _sendMessageToBackground({message: "GET_BOOKMARKS", forceReload}, function(response) {});
     }
 
     function sendDeleteBookmark(to_delete_bookmark_id = -1){
-      // send the message to the background asking for changes
       _sendMessageToBackground({message: "DELETE_BOOKMARK", to_delete_bookmark_id}, function(response) {});
+    }
+
+    function sendUpdateBookmark(to_update_bookmark){
+      _sendMessageToBackground({message: "UPDATE_BOOKMARK", to_update_bookmark}, function(response) {});
     }
 
 
