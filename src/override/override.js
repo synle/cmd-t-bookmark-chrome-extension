@@ -31,81 +31,81 @@
   // navigate results by keyboard
   document.addEventListener('keydown',
     async (e) => {
-    let bookmark_id;
-    const {key, ctrlKey} = e;
-    if(ctrlKey === true){
-      return;
-    }
-
-    let domMatches = [...document.querySelectorAll(`.match a`)];
-    if(domMatches.length === 0){
-      return;
-    }
-
-    let currentFocusedElem = document.querySelector(':focus');
-    let newIdxToFocus = domMatches.findIndex(match => match === currentFocusedElem);
-
-    // get the parent match row
-    const matchResultElem = _getClosestItem(currentFocusedElem, 'match');
-
-    switch(key){
-      case 'r': // rename
-      // make sure we have selected something
-      bookmark_id = currentFocusedElem.dataset.bookmark_id;
-      if(bookmark_id){
-        const foundTargetMatch = current_matches.find(targetBookmark => targetBookmark.id === bookmark_id);
-
-        if(foundTargetMatch){
-        const newBookmarkName = (prompt(
-          `New name for: \n${foundTargetMatch.url}`,
-          foundTargetMatch.title
-        ) || '').trim();
-
-        if(newBookmarkName.length > 0){
-          foundTargetMatch.title = newBookmarkName;
-          sendUpdateBookmark(foundTargetMatch);
-
-          // update the dom itself...
-          matchResultElem.innerHTML = _getBookmarkDom(foundTargetMatch);
-
-          // refocus on the dom...
-          matchResultElem.querySelector('a').focus();
-        }
-        }
+      let bookmark_id;
+      const {key, ctrlKey} = e;
+      if(ctrlKey === true){
+        return;
       }
-      break;
-      case 'Delete':
-      bookmark_id = currentFocusedElem.dataset.bookmark_id;
-      if(bookmark_id && confirm('Do you want to delete this bookmark?')){
-        // remove the node
-        matchResultElem.remove();
 
-        // trigger the api to delete it from chrome
-        sendDeleteBookmark(bookmark_id);
-
-        // focus on the previous element
-        newIdxToFocus--;
-        newIdxToFocus = Math.max(0, newIdxToFocus);
-        [...document.querySelectorAll(`.match a`)][newIdxToFocus].focus();
-
-
-        // remove the removed
-        current_matches = current_matches.filter(targetBookmark => targetBookmark.id !== bookmark_id);
+      let domMatches = [...document.querySelectorAll(`.match a`)];
+      if(domMatches.length === 0){
+        return;
       }
-      break;
 
-      case 'ArrowUp':
-      case 'ArrowDown':
-      // navigate with keyboard
-      newIdxToFocus = getFocusIndexForNavigation(
-        newIdxToFocus,
-        key === 'ArrowDown' ? 1 : -1,
-        domMatches.length
-      );
-      domMatches[newIdxToFocus].focus();
-      e.preventDefault();
-      break;
-    }
+      let currentFocusedElem = document.querySelector(':focus');
+      let newIdxToFocus = domMatches.findIndex(match => match === currentFocusedElem);
+
+      // get the parent match row
+      const matchResultElem = _getClosestItem(currentFocusedElem, 'match');
+
+      switch(key){
+        case 'r': // rename
+          // make sure we have selected something
+          bookmark_id = currentFocusedElem.dataset.bookmark_id;
+          if(bookmark_id){
+            const foundTargetMatch = current_matches.find(targetBookmark => targetBookmark.id === bookmark_id);
+
+            if(foundTargetMatch){
+            const newBookmarkName = (prompt(
+              `New name for: \n${foundTargetMatch.url}`,
+              foundTargetMatch.title
+            ) || '').trim();
+
+            if(newBookmarkName.length > 0){
+              foundTargetMatch.title = newBookmarkName;
+              sendUpdateBookmark(foundTargetMatch);
+
+              // update the dom itself...
+              matchResultElem.innerHTML = _getBookmarkDom(foundTargetMatch);
+
+              // refocus on the dom...
+              matchResultElem.querySelector('a').focus();
+            }
+            }
+          }
+          break;
+        case 'Delete':
+          bookmark_id = currentFocusedElem.dataset.bookmark_id;
+          if(bookmark_id && confirm('Do you want to delete this bookmark?')){
+            // remove the node
+            matchResultElem.remove();
+
+            // trigger the api to delete it from chrome
+            sendDeleteBookmark(bookmark_id);
+
+            // focus on the previous element
+            newIdxToFocus--;
+            newIdxToFocus = Math.max(0, newIdxToFocus);
+            [...document.querySelectorAll(`.match a`)][newIdxToFocus].focus();
+
+
+            // remove the removed
+            current_matches = current_matches.filter(targetBookmark => targetBookmark.id !== bookmark_id);
+          }
+          break;
+
+        case 'ArrowUp':
+        case 'ArrowDown':
+          // navigate with keyboard
+          newIdxToFocus = getFocusIndexForNavigation(
+            newIdxToFocus,
+            key === 'ArrowDown' ? 1 : -1,
+            domMatches.length
+          );
+          domMatches[newIdxToFocus].focus();
+          e.preventDefault();
+          break;
+      }
     }
   )
 
@@ -114,13 +114,16 @@
     const target = _getClosestItem(e.target, 'match');
 
     if(target){
-    const href = (target.querySelector('a') || parentTarget.querySelector('a')).href;
+      const href = (target.querySelector('a') || parentTarget.querySelector('a')).href;
 
-    // TODO: make this a part of setting page (handling of _blank)
-    // window.open(href, '_blank');
-    location.href = href;
+      // set the loading screen...
+      document.querySelector('#app').innerHTML = `<h1 class="p3 text-center">Loading...</h1>`;
 
-    e.preventDefault();
+      // TODO: make this a part of setting page (handling of _blank)
+      // window.open(href, '_blank');
+      location.href = href;
+
+      e.preventDefault();
     }
   })
 
