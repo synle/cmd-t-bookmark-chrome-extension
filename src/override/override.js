@@ -45,6 +45,9 @@
         let currentFocusedElem = document.querySelector(':focus');
         let newIdxToFocus = domMatches.findIndex(match => match === currentFocusedElem);
 
+        // get the parent match row
+        const matchResultElem = _getClosestItem(currentFocusedElem, 'match');
+
         switch(key){
           case 'r': // rename
             // make sure we have selected something
@@ -62,14 +65,11 @@
                   foundTargetMatch.title = newBookmarkName;
                   sendUpdateBookmark(foundTargetMatch);
 
-
-                  const parentElement = currentFocusedElem.parentElement;
-
                   // update the dom itself...
-                  parentElement.innerHTML = _getBookmarkDom(foundTargetMatch);
+                  matchResultElem.innerHTML = _getBookmarkDom(foundTargetMatch);
 
                   // refocus on the dom...
-                  parentElement.querySelector('a').focus();
+                  matchResultElem.querySelector('a').focus();
                 }
               }
             }
@@ -78,7 +78,7 @@
             bookmark_id = currentFocusedElem.dataset.bookmark_id;
             if(bookmark_id && confirm('Do you want to delete this bookmark?')){
               // remove the node
-              currentFocusedElem.parentElement.remove();
+              matchResultElem.remove();
 
               // trigger the api to delete it from chrome
               sendDeleteBookmark(bookmark_id);
@@ -111,12 +111,15 @@
 
     // click to open bookmark
     document.addEventListener('click', function(e){
-      const target = e.target;
-      const parentTarget = target.parentElement || target;
+      const target = _getClosestItem(e.target, 'match');
 
-      if(target.classList.contains('match') || parentTarget.classList.contains('match')){
+      if(target){
         const href = (target.querySelector('a') || parentTarget.querySelector('a')).href;
-        window.open(href, '_blank');
+
+        // TODO: make this a part of setting page (handling of _blank)
+        // window.open(href, '_blank');
+        location.href = href;
+
         e.preventDefault();
       }
     })
@@ -242,5 +245,16 @@
             () => chrome.runtime.sendMessage(message, cb),
             200
         )
+    }
+
+    function _getClosestItem(target, cssClassToMatch){
+      while(target){
+        if(target.classList.contains(cssClassToMatch)){
+          return target;
+        }
+        target = target.parentElement;
+      }
+
+      return null;
     }
 })()
