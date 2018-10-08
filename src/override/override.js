@@ -10,6 +10,10 @@
   // listen to background page to update myself...
   // chrome.runtime.onMessage.addListener
   chrome.extension.onMessage.addListener(function(request, sender, sendResponse) {
+    if(sender.tab){
+      // ignore background request sent from tab, only accept background
+      return;
+    }
     console.debug('Total bookmarks in message:', request && request.length);
     flattened_bookmarks = request || [];
     deferredLoaded.resolve();
