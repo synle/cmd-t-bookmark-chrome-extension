@@ -3,6 +3,7 @@
   async function(){
   let flattened_bookmarks = [], deferredLoaded = new Deferred();
   let current_keyword = '', current_matches = [];
+  const mySettings = await window.CommonUtil.getSettings();
 
   console.time('app ready');
 
@@ -119,9 +120,13 @@
       // set the loading screen...
       document.querySelector('#app').innerHTML = `<h1 class="p3 text-center">Loading...</h1>`;
 
-      // TODO: make this a part of setting page (handling of _blank)
-      // window.open(href, '_blank');
-      location.href = href;
+      // depends on settings, open new tab or redirect
+      if(mySettings.openLinkInNewTab === true){
+        window.open(href, '_blank');
+      } else {
+        location.href = href;
+      }
+
 
       e.preventDefault();
     }

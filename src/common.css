@@ -1,0 +1,49 @@
+:root{
+  --space0: 5px;
+  --space1: 10px;
+  --space2: 20px;
+  --space3: 40px;
+  --font-size0: 12px;
+  --font-size1: 15px;
+  --font-size2: 20px;
+  --font-size3: 40px;
+  --c-black0: #000;
+  --c-black1: #333;
+  --c-black2: #444;
+  --c-black3: #999;
+  --c-black4: #eee;
+  --c-grey0: #2c292d;
+  --c-grey1: #575558;
+  --c-yellow0: #ffd866;
+  --c-white0: #fff;
+  --c-blue0: #78dce8;
+  --c-blue1: #39c;
+
+  --app-width: 1280px;
+  --result-left-space: 400px;
+};
+.cptr{ cursor: pointer; }
+.p0{ padding: var(--space0) }
+.p1{ padding: var(--space1) }
+.p2{ padding: var(--space2) }
+.p3{ padding: var(--space3) }
+.pt0{ padding-top: var(--space0) }
+.pt1{ padding-top: var(--space1) }
+.pt2{ padding-top: var(--space2) }
+.pt3{ padding-top: var(--space3) }
+.pb0{ padding-bottom: var(--space0) }
+.pb1{ padding-bottom: var(--space1) }
+.pb2{ padding-bottom: var(--space2) }
+.pb3{ padding-bottom: var(--space3) }
+.pl0{ padding-left: var(--space0) }
+.pl1{ padding-left: var(--space1) }
+.pl2{ padding-left: var(--space2) }
+.pl3{ padding-left: var(--space3) }
+.pr0{ padding-right: var(--space0) }
+.pr1{ padding-right: var(--space1) }
+.pr2{ padding-right: var(--space2) }
+.pr3{ padding-right: var(--space3) }
+*{
+  box-sizing: border-box;
+  font-size: var(--font-size1);
+}

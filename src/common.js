@@ -1,3 +1,23 @@
+window.CommonUtil = (function(){
+  const CommonUtil = {
+    getSettings: () => new Promise(resolve => {
+      chrome.storage.sync.get(
+        {
+          openLinkInNewTab: false,
+        },
+        resolve
+      );
+    }),
+    saveSettings: (newValue) => new Promise(resolve => {
+      chrome.storage.sync.set(newValue, resolve);
+    })
+  };
+
+  return CommonUtil;
+})();
+
+
+// Polyfill
 function Deferred() {
   // update 062115 for typeof
   if (typeof(Promise) != 'undefined' && Promise.defer) {
