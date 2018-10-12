@@ -6,22 +6,25 @@
 
   function _onAfterInit(mySettings){
     // set up the select / form inputs
-    const openBehaviorOptions = [
-      [false, 'Replace Current Tab with Selected Link'],
-      [true, 'Open Selected Link in new Tab'],
-    ].reduce((acc, [optionValue, optionLabel]) => {
-      if(mySettings.openLinkInNewTab === optionValue){
-        return acc.concat(`<option value="${optionValue}" selected>${optionLabel}</option>`)
-      } else {
-        return acc.concat(`<option value="${optionValue}">${optionLabel}</option>`)
-      }
-    }, []).join('');
-
     const openBehaviorSelectEl = document.querySelector('#openBehaviorSelect');
-    openBehaviorSelectEl.innerHTML = openBehaviorOptions;
+    openBehaviorSelectEl.innerHTML = generateSelectOption([
+        ['false', 'Replace Current Tab with Selected Link'],
+        ['true', 'Open Selected Link in new Tab'],
+      ],
+      mySettings.openLinkInNewTab
+    );
 
     const checkboxShowTreeLabelsEl = document.querySelector('#checkboxShowTreeLabels');
     checkboxShowTreeLabels.checked = mySettings.showTreeLabels;
+
+
+    const themeSelectEl = document.querySelector('#themeSelect');
+    themeSelectEl.innerHTML = generateSelectOption([
+        ['dark-theme', 'Dark Theme'],
+        ['bright-theme', 'Bright Theme'],
+      ],
+      mySettings.theme
+    );
 
 
     // set up the on submit handler
@@ -31,6 +34,7 @@
       const newValue = {
         openLinkInNewTab: openBehaviorSelectEl.value === 'true',
         showTreeLabels: checkboxShowTreeLabels.checked,
+        theme: themeSelectEl.value,
       };
 
       window.CommonUtil.saveSettings(newValue)
@@ -40,6 +44,16 @@
 
       return false;
     }
+  }
+
+  function generateSelectOption(allOptions, selectedValue){
+    return allOptions.reduce((acc, [optionValue, optionLabel]) => {
+      if(selectedValue === optionValue){
+        return acc.concat(`<option value="${optionValue}" selected>${optionLabel}</option>`)
+      } else {
+        return acc.concat(`<option value="${optionValue}">${optionLabel}</option>`)
+      }
+    }, []).join('');
   }
 
   // init bootstrap
