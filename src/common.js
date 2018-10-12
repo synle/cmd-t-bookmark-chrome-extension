@@ -4,6 +4,7 @@ window.CommonUtil = (function(){
       chrome.storage.sync.get(
         {
           openLinkInNewTab: false,
+          showTreeLabels: false,
         },
         resolve
       );

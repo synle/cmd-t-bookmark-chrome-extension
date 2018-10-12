@@ -162,20 +162,29 @@
   function populateBookmarks(keyword, matches){
     let dom = '';
     if(keyword.length === 0){
-    dom = '';
+      dom = '';
+    } else if( keyword === '?'){
+      dom = `<div class="result-row p0">
+          <div class="pb2">Use the following shortcut key to perform operation on selected bookmarks</div>
+          <div class="pt1 pl1"><strong>r</strong> to rename a bookmark</div>
+          <div class="pt1 pl1"><strong>DELETE</strong> to delete a bookmark</div>
+        </div>`;
     }
     else if(keyword.length <= 2){
-    dom = `<div class="result-row p0">Enter more than 2 characters to search</div>`;
+      dom = `<div class="result-row p0">Enter more than 2 characters to search</div>`;
     }
     else if(matches.length === 0){
-    dom = `<div class="result-row no-match p0">
-      No Matches. <a href="https://google.com/search?q=${keyword}" class="match-label fallback-match">Try Searching on Google</a>
-    </div>`;
+      dom = `
+        <div class="result-row no-match p0">
+          <span>No Matches.</span>
+          <a href="https://google.com/search?q=${keyword}" class="match-label fallback-match">Try Searching on Google</a>
+        </div>
+      `;
     } else {
-    dom = matches.reduce(
-      (acc, current_bookmark) => acc + `<div class="result-row match p0">${_getBookmarkDom(current_bookmark)}</div>`,
-      ''
-    )
+      dom = matches.reduce(
+        (acc, current_bookmark) => acc + `<div class="result-row match p0">${_getBookmarkDom(current_bookmark)}</div>`,
+        ''
+      )
     }
 
     document.querySelector('#bookmarks-container')
@@ -188,8 +197,16 @@
     const highlightedTitle = getHighlightedTitle(title, keyword);
     const highlightedUrl = getHighlightedUrl(clean_url, keyword);
 
-    return `<span class="match-url">${highlightedUrl}</span>
-    <a href="${url}" data-bookmark_id="${id}" class="match-label">${highlightedTitle}</a>`;
+    let treeLabels = '';
+    if(mySettings.showTreeLabels === true){
+      treeLabels = `<span class="match-breadcrumb pr1">${breadcrumb}</span>`;
+    }
+
+    return `
+      ${treeLabels}
+      <span class="match-url">${highlightedUrl}</span>
+      <a href="${url}" data-bookmark_id="${id}" class="match-label">${highlightedTitle}</a>
+    `;
   }
 
   function getHighlightedString(title, keyword){

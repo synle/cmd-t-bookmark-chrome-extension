@@ -20,6 +20,9 @@
     const openBehaviorSelectEl = document.querySelector('#openBehaviorSelect');
     openBehaviorSelectEl.innerHTML = openBehaviorOptions;
 
+    const checkboxShowTreeLabelsEl = document.querySelector('#checkboxShowTreeLabels');
+    checkboxShowTreeLabels.checked = mySettings.showTreeLabels;
+
 
     // set up the on submit handler
     // set up the form hook...
@@ -27,6 +30,7 @@
     settingForm.onsubmit = () => {
       const newValue = {
         openLinkInNewTab: openBehaviorSelectEl.value === 'true',
+        showTreeLabels: checkboxShowTreeLabels.checked,
       };
 
       window.CommonUtil.saveSettings(newValue)
