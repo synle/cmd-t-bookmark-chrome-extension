@@ -6,6 +6,7 @@ window.CommonUtil = (function(){
           openLinkInNewTab: false,
           showTreeLabels: false,
           theme: 'dark-theme',
+          showUniqueOnly: true,
         },
         resolve
       );

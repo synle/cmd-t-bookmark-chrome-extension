@@ -27,6 +27,11 @@
     );
 
 
+    const checkboxShowUniqueOnlyEl = document.querySelector('#checkboxShowUniqueOnly');
+    checkboxShowUniqueOnly.checked = mySettings.showUniqueOnly;
+
+
+
     // set up the on submit handler
     // set up the form hook...
     const settingForm = document.forms[0];
@@ -35,6 +40,7 @@
         openLinkInNewTab: openBehaviorSelectEl.value === 'true',
         showTreeLabels: checkboxShowTreeLabels.checked,
         theme: themeSelectEl.value,
+        showUniqueOnly: checkboxShowUniqueOnlyEl.checked,
       };
 
       window.CommonUtil.saveSettings(newValue)
