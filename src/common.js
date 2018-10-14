@@ -5,6 +5,7 @@ window.CommonUtil = (function(){
         {
           openLinkInNewTab: false,
           showTreeLabels: false,
+          theme: 'dark-theme',
         },
         resolve
       );

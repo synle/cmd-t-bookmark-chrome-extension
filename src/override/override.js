@@ -5,6 +5,9 @@
   let current_keyword = '', current_matches = [];
   const mySettings = await window.CommonUtil.getSettings();
 
+  // apply the theme
+  document.querySelector('body').classList.add(mySettings.theme);
+
   console.time('app ready');
 
   // listen to background page to update myself...

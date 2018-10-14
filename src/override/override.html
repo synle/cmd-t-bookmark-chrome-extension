@@ -8,22 +8,14 @@
 </head>
 <body>
     <style>
-      body{
-        background: var(--c-grey0);
-        color: var(--c-white0);
-      }
       #txt-search{
         box-sizing: border-box;
         width: 100%;
         font-size: var(--font-size1);
-        color: var(--c-grey1);
-        background: var(--c-yellow0);
         border: none;
       }
       #bookmarks-container{
         overflow: auto;
-        background: var(--c-white0);
-        color: var(--c-grey1);
       }
       .result-row{
         font-size: var(--font-size0);
@@ -34,17 +26,7 @@
       .match{
 
       }
-      /*.match:hover{
-        background: var(--c-black2);
-        color: var(--c-white0);
-      }*/
-      .match:focus-within{
-        border: 1px solid #000;
-        background: var(--c-black1);
-        color: var(--c-white0);
-      }
       .match a, .match a:visited{
-        color: var(--c-blue1);
         text-decoration: none;
       }
       .match a:focus{
@@ -53,8 +35,6 @@
       }
 
       .match .highlight {
-        background: var(--c-grey0);
-        color: var(--c-white0);
         text-decoration: underline;
       }
 
@@ -94,14 +74,72 @@
       }
       .match-breadcrumb{
         flex-shrink: 0;
-        color: var(--c-orange0);
         white-space: nowrap;
         overflow: hidden;
         text-overflow: ellipsis;
         width: 250px;
       }
+      .match:focus-within {
+          border-left: 3px solid var(--c-red0);;
+          font-weight:bold;
+      }
       .text-center{
         text-align: center;
+      }
+
+
+
+      /*color and theme*/
+      /*dark*/
+      body.dark-theme{
+          background: var(--c-grey2);
+          color: var(--c-white0);
+      }
+      .dark-theme a, .dark-theme a:visited, .dark-theme ::placeholder {
+          color: var(--c-white1);
+      }
+      .dark-theme #txt-search {
+          caret-color: var(--c-red0);
+      }
+      .dark-theme #txt-search, .dark-theme #bookmarks-container {
+          background: var(--c-grey3);
+          color: var(--c-grey4);
+      }
+      .dark-theme .match .highlight {
+          color: var(--c-white4);
+          font-weight:bold;
+      }
+      .dark-theme .match-breadcrumb {
+          color: var(--c-red0);
+      }
+
+
+
+
+
+
+
+      /*bright*/
+      body.bright-theme{
+          background: var(--c-white2);
+          color: var(--c-black0);
+      }
+      .bright-theme a, .bright-theme a:visited, .bright-theme ::placeholder {
+          color: var(--c-grey3);
+      }
+      .bright-theme #txt-search {
+          caret-color: var(--c-red0);
+      }
+      .bright-theme #txt-search, .bright-theme #bookmarks-container {
+          color: var(--c-black0);
+          background: var(--c-white0);
+      }
+      .bright-theme .match .highlight {
+          color: var(--c-white4);
+          font-weight:bold;
+      }
+      .bright-theme .match-breadcrumb {
+          color: var(--c-red0);
       }
     </style>
 

@@ -14,11 +14,17 @@
   --c-black4: #eee;
   --c-grey0: #2c292d;
   --c-grey1: #575558;
+  --c-grey2: #242424;
+  --c-grey3: #424242;
+  --c-grey4: #9e9e9e;
   --c-yellow0: #ffd866;
   --c-white0: #fff;
+  --c-white1: #eee;
+  --c-white2: #f4f4f4;
   --c-blue0: #78dce8;
   --c-blue1: #39c;
   --c-orange0: orange;
+  --c-red0: #e62117;
 
   --app-width: 1280px;
   --result-left-space: 400px;
