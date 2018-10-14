@@ -151,7 +151,7 @@
     timer && clearTimeout(timer);
     timer = setTimeout(
       function(){
-      current_matches = searchBookmarks(current_keyword, flattened_bookmarks);
+      current_matches = searchBookmarks(current_keyword, flattened_bookmarks, mySettings.showUniqueOnly);
 
       populateBookmarks(current_keyword, current_matches);
       cb && cb();
@@ -228,14 +228,31 @@
     return getHighlightedString(title, keyword);
   }
 
-  function searchBookmarks(keyword, flattened_bookmarks){
+  function searchBookmarks(keyword, flattened_bookmarks, dedupeBookmarks){
     if(keyword.length < 2){
     return [];
     }
 
-    return flattened_bookmarks.filter(
-    bookmark => fuzzyMatchBookmark(bookmark, keyword)
-    )
+    let results = flattened_bookmarks.filter(
+      bookmark => fuzzyMatchBookmark(bookmark, keyword)
+    );
+
+    if(dedupeBookmarks === true){
+      const finalResultSet = new Set();
+
+      // dedupe
+      results = results.reduce((acc, item) => {
+        const url = item.clean_url;
+        if( !finalResultSet.has(url) ){
+          finalResultSet.add(url);
+          acc.push(item);
+        };
+
+        return acc;
+      }, [])
+    }
+
+    return results;
   }
 
   function fuzzyMatchBookmark({title, url}, keyword){
