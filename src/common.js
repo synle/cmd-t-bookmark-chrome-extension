@@ -7,6 +7,7 @@ window.CommonUtil = (function(){
           showTreeLabels: false,
           theme: 'dark-theme',
           showUniqueOnly: true,
+          showResultFromHistory: false,
         },
         resolve
       );
@@ -20,8 +21,33 @@ window.CommonUtil = (function(){
 })();
 
 
+window.searchUrlFromHistory = function(keyword){
+  return new Promise(resolve => {
+    chrome.history.search(
+      {
+        text: keyword,
+        maxResults: 6,
+      },
+      function callback(data){
+        const bookmarks_from_history = data.map(b => (
+          {
+            id: b.id,
+            title: b.title || b.url,
+            url: b.url,
+            clean_url: b.url,
+            result_type: 'RESULT_HISTORY',
+            breadcrumb: 'History',
+          }
+        ))
+
+        resolve(bookmarks_from_history)
+      }
+    )
+  });
+}
+
 // Polyfill
-function Deferred() {
+window.Deferred = function Deferred() {
   // update 062115 for typeof
   if (typeof(Promise) != 'undefined' && Promise.defer) {
     //need import of Promise.jsm for example: Cu.import('resource:/gree/modules/Promise.jsm');

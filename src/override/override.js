@@ -150,11 +150,11 @@
     // clear previous debounced
     timer && clearTimeout(timer);
     timer = setTimeout(
-      function(){
-      current_matches = searchBookmarks(current_keyword, flattened_bookmarks, mySettings.showUniqueOnly);
+      async function(){
+        current_matches = await searchBookmarks(current_keyword, flattened_bookmarks, mySettings.showUniqueOnly);
 
-      populateBookmarks(current_keyword, current_matches);
-      cb && cb();
+        populateBookmarks(current_keyword, current_matches);
+        cb && cb();
       },
       500
     )
@@ -228,14 +228,23 @@
     return getHighlightedString(title, keyword);
   }
 
-  function searchBookmarks(keyword, flattened_bookmarks, dedupeBookmarks){
+  async function searchBookmarks(keyword, flattened_bookmarks, dedupeBookmarks){
     if(keyword.length < 2){
-    return [];
+      return [];
     }
 
-    let results = flattened_bookmarks.filter(
+    let results_from_history = [];
+    if(mySettings.showResultFromHistory){
+      results_from_history = await searchUrlFromHistory(keyword);
+    }
+
+    const results_from_bookmark = flattened_bookmarks.filter(
       bookmark => fuzzyMatchBookmark(bookmark, keyword)
     );
+
+
+    let results = [].concat(results_from_history)
+                    .concat(results_from_bookmark);
 
     if(dedupeBookmarks === true){
       const finalResultSet = new Set();

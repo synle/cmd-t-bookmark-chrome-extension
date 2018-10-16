@@ -31,6 +31,9 @@
     checkboxShowUniqueOnly.checked = mySettings.showUniqueOnly;
 
 
+    const checkboxShowResultFromHistEl = document.querySelector('#checkboxShowResultFromHist');
+    checkboxShowResultFromHist.checked = mySettings.showResultFromHistory;
+
 
     // set up the on submit handler
     // set up the form hook...
@@ -41,6 +44,7 @@
         showTreeLabels: checkboxShowTreeLabels.checked,
         theme: themeSelectEl.value,
         showUniqueOnly: checkboxShowUniqueOnlyEl.checked,
+        showResultFromHistory: checkboxShowResultFromHistEl.checked,
       };
 
       window.CommonUtil.saveSettings(newValue)

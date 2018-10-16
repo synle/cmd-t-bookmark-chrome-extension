@@ -168,6 +168,9 @@
             .replace('http://', '')
             .replace('www.', '');
 
+
+          bookmark_object.result_type = 'RESULT_BOOKMARK';
+
           return bookmark_object;
         })
         .sort((a, b) => {// sort by clean url, then by title
