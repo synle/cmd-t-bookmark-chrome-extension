@@ -1,43 +1,41 @@
 <!DOCTYPE html>
 <html>
-<head>
-  <title>CMD + T Bookmark Settings</title>
-  <link rel="stylesheet" type="text/css" href="../common.css">
-</head>
-<body class="pl2 pr2">
-  <style>
+  <head>
+    <title>CMD + T Bookmark Settings</title>
+    <link rel="stylesheet" type="text/css" href="../common.css" />
+  </head>
+  <body class="pl2 pr2">
+    <style></style>
 
-  </style>
+    <form>
+      <div class="pt1">
+        <label><strong>Link Open Behavior:</strong></label>
+        <select id="openBehaviorSelect"></select>
+      </div>
+      <div class="pt1">
+        <label><strong>Show Tree Labels:</strong></label>
+        <input id="checkboxShowTreeLabels" type="checkbox" />
+      </div>
+      <div class="pt1">
+        <label><strong>Theme:</strong></label>
+        <select id="themeSelect"></select>
+      </div>
+      <div class="pt1">
+        <label><strong>Show Results from History:</strong></label>
+        <input id="checkboxShowResultFromHist" type="checkbox" />
+      </div>
+      <div class="pt1">
+        <label><strong>Show Only Unique Bookmark Results:</strong></label>
+        <input id="checkboxShowUniqueOnly" type="checkbox" />
+      </div>
+      <!-- form status label -->
+      <div id="formStatus" class="pt1"></div>
+      <div class="pt1">
+        <input type="submit" value="Save" />
+      </div>
+    </form>
 
-  <form>
-    <div class="pt1">
-      <label><strong>Link Open Behavior:</strong></label>
-      <select id="openBehaviorSelect"></select>
-    </div>
-    <div class="pt1">
-      <label><strong>Show Tree Labels:</strong></label>
-      <input id="checkboxShowTreeLabels" type="checkbox"></input>
-    </div>
-    <div class="pt1">
-      <label><strong>Theme:</strong></label>
-      <select id="themeSelect"></select>
-    </div>
-    <div class="pt1">
-      <label><strong>Show Results from History:</strong></label>
-      <input id="checkboxShowResultFromHist" type="checkbox"></input>
-    </div>
-    <div class="pt1">
-      <label><strong>Show Only Unique Bookmark Results:</strong></label>
-      <input id="checkboxShowUniqueOnly" type="checkbox"></input>
-    </div>
-    <!-- form status label -->
-    <div id="formStatus" class="pt1"></div>
-    <div class="pt1">
-      <input type="submit" value="Save" />
-    </div>
-  </form>
-
-  <script type="text/javascript" src="../common.js"></script>
-  <script src="options.js"></script>
-</body>
+    <script type="text/javascript" src="../common.js"></script>
+    <script src="options.js"></script>
+  </body>
 </html>

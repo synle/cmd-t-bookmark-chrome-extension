@@ -1,58 +1,57 @@
-window.CommonUtil = (function(){
+window.CommonUtil = (function() {
   const CommonUtil = {
-    getSettings: () => new Promise(resolve => {
-      chrome.storage.sync.get(
-        {
-          openLinkInNewTab: false,
-          showTreeLabels: false,
-          theme: 'dark-theme',
-          showUniqueOnly: true,
-          showResultFromHistory: false,
-        },
-        resolve
-      );
-    }),
-    saveSettings: (newValue) => new Promise(resolve => {
-      chrome.storage.sync.set(newValue, resolve);
-    })
+    getSettings: () =>
+      new Promise(resolve => {
+        chrome.storage.sync.get(
+          {
+            openLinkInNewTab: false,
+            showTreeLabels: false,
+            theme: "dark-theme",
+            showUniqueOnly: true,
+            showResultFromHistory: false
+          },
+          resolve
+        );
+      }),
+    saveSettings: newValue =>
+      new Promise(resolve => {
+        chrome.storage.sync.set(newValue, resolve);
+      })
   };
 
   return CommonUtil;
 })();
 
-
-window.searchUrlFromHistory = function(keyword){
+window.searchUrlFromHistory = function(keyword) {
   return new Promise(resolve => {
     chrome.history.search(
       {
         text: keyword,
-        maxResults: 6,
+        maxResults: 6
       },
-      function callback(data){
-        const bookmarks_from_history = data.map(b => (
-          {
-            id: b.id,
-            title: b.title || b.url,
-            url: b.url,
-            clean_url: b.url,
-            result_type: 'RESULT_HISTORY',
-            breadcrumb: 'History',
-          }
-        ))
+      function callback(data) {
+        const bookmarks_from_history = data.map(b => ({
+          id: b.id,
+          title: b.title || b.url,
+          url: b.url,
+          clean_url: b.url,
+          result_type: "RESULT_HISTORY",
+          breadcrumb: "History"
+        }));
 
-        resolve(bookmarks_from_history)
+        resolve(bookmarks_from_history);
       }
-    )
+    );
   });
-}
+};
 
 // Polyfill
 window.Deferred = function Deferred() {
   // update 062115 for typeof
-  if (typeof(Promise) != 'undefined' && Promise.defer) {
+  if (typeof Promise != "undefined" && Promise.defer) {
     //need import of Promise.jsm for example: Cu.import('resource:/gree/modules/Promise.jsm');
     return Promise.defer();
-  } else if (typeof(PromiseUtils) != 'undefined'  && PromiseUtils.defer) {
+  } else if (typeof PromiseUtils != "undefined" && PromiseUtils.defer) {
     //need import of PromiseUtils.jsm for example: Cu.import('resource:/gree/modules/PromiseUtils.jsm');
     return PromiseUtils.defer();
   } else {
@@ -77,10 +76,12 @@ window.Deferred = function Deferred() {
     /* A newly created Promise object.
      * Initially in pending state.
      */
-    this.promise = new Promise(function(resolve, reject) {
-      this.resolve = resolve;
-      this.reject = reject;
-    }.bind(this));
+    this.promise = new Promise(
+      function(resolve, reject) {
+        this.resolve = resolve;
+        this.reject = reject;
+      }.bind(this)
+    );
     Object.freeze(this);
   }
-}
+};

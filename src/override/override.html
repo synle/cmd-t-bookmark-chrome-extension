@@ -1,35 +1,35 @@
 <!DOCTYPE html>
 <html>
-<head>
-  <meta http-equiv="Content-Security-Policy"
-    content="script-src 'self'">
-	<title>CMD + T Bookmark</title>
-  <link rel="stylesheet" type="text/css" href="../common.css">
-</head>
-<body>
+  <head>
+    <meta http-equiv="Content-Security-Policy" content="script-src 'self'" />
+    <title>CMD + T Bookmark</title>
+    <link rel="stylesheet" type="text/css" href="../common.css" />
+  </head>
+  <body>
     <style>
-      #txt-search{
+      #txt-search {
         box-sizing: border-box;
         width: 100%;
         font-size: var(--font-size1);
         border: none;
       }
-      #bookmarks-container{
+      #bookmarks-container {
         overflow: auto;
       }
-      .result-row{
+      .result-row {
         font-size: var(--font-size0);
       }
-      .match, .no-match{
+      .match,
+      .no-match {
         border: 1px solid transparent;
       }
-      .match{
-
+      .match {
       }
-      .match a, .match a:visited{
+      .match a,
+      .match a:visited {
         text-decoration: none;
       }
-      .match a:focus{
+      .match a:focus {
         outline-color: transparent;
         outline-style: none;
       }
@@ -38,41 +38,39 @@
         text-decoration: underline;
       }
 
-
-      #header{
+      #header {
         position: sticky;
         top: 0;
         margin-bottom: var(--space0);
       }
 
-      #app{
-        margin:auto;
+      #app {
+        margin: auto;
         max-width: var(--app-width);
       }
 
-
-      .match{
+      .match {
         display: flex;
         flex-direction: row;
         height: 40px;
         box-sizing: border-box;
       }
-      .match-url{
+      .match-url {
         flex-shrink: 0;
         width: var(--result-left-space);
-        margin-right:var(--space2);
+        margin-right: var(--space2);
         white-space: nowrap;
         overflow: hidden;
         text-overflow: ellipsis;
       }
-      .match-label{
+      .match-label {
         flex-grow: 1;
         white-space: nowrap;
         overflow: hidden;
         text-overflow: ellipsis;
         width: 250px;
       }
-      .match-breadcrumb{
+      .match-breadcrumb {
         flex-shrink: 0;
         white-space: nowrap;
         overflow: hidden;
@@ -80,83 +78,83 @@
         width: 250px;
       }
       .match:focus-within {
-          border-left: 3px solid var(--c-red0);;
-          font-weight:bold;
+        border-left: 3px solid var(--c-red0);
+        font-weight: bold;
       }
-      .text-center{
+      .text-center {
         text-align: center;
       }
 
-
-
       /*color and theme*/
       /*dark*/
-      body.dark-theme{
-          background: var(--c-grey2);
-          color: var(--c-white0);
+      body.dark-theme {
+        background: var(--c-grey2);
+        color: var(--c-white0);
       }
-      .dark-theme a, .dark-theme a:visited, .dark-theme ::placeholder {
-          color: var(--c-white1);
+      .dark-theme a,
+      .dark-theme a:visited,
+      .dark-theme ::placeholder {
+        color: var(--c-white1);
       }
       .dark-theme #txt-search {
-          caret-color: var(--c-red0);
+        caret-color: var(--c-red0);
       }
-      .dark-theme #txt-search, .dark-theme #bookmarks-container {
-          background: var(--c-grey3);
-          color: var(--c-grey4);
+      .dark-theme #txt-search,
+      .dark-theme #bookmarks-container {
+        background: var(--c-grey3);
+        color: var(--c-grey4);
       }
       .dark-theme .match .highlight {
-          color: var(--c-white4);
-          font-weight:bold;
+        color: var(--c-white4);
+        font-weight: bold;
       }
       .dark-theme .match-breadcrumb {
-          color: var(--c-red0);
+        color: var(--c-red0);
       }
-
-
-
-
-
-
 
       /*bright*/
-      body.bright-theme{
-          background: var(--c-white2);
-          color: var(--c-black0);
+      body.bright-theme {
+        background: var(--c-white2);
+        color: var(--c-black0);
       }
-      .bright-theme a, .bright-theme a:visited, .bright-theme ::placeholder {
-          color: var(--c-grey3);
+      .bright-theme a,
+      .bright-theme a:visited,
+      .bright-theme ::placeholder {
+        color: var(--c-grey3);
       }
       .bright-theme #txt-search {
-          caret-color: var(--c-red0);
-          border: 1px solid var(--c-black3);
+        caret-color: var(--c-red0);
+        border: 1px solid var(--c-black3);
       }
-      .bright-theme #txt-search, .bright-theme #bookmarks-container {
-          color: var(--c-black0);
-          background: var(--c-white0);
+      .bright-theme #txt-search,
+      .bright-theme #bookmarks-container {
+        color: var(--c-black0);
+        background: var(--c-white0);
       }
       .bright-theme .match .highlight {
-          color: var(--c-white4);
-          font-weight:bold;
+        color: var(--c-white4);
+        font-weight: bold;
       }
       .bright-theme .match-breadcrumb {
-          color: var(--c-red0);
+        color: var(--c-red0);
       }
     </style>
 
     <div id="app">
       <form id="form-search">
         <div id="header">
-          <input id="txt-search"
+          <input
+            id="txt-search"
             class="p1"
             placeholder="Search For Bookmark (or ? for help)"
             type="text"
-            autofocus />
+            autofocus
+          />
         </div>
         <div id="bookmarks-container"></div>
       </form>
     </div>
     <script type="text/javascript" src="../common.js"></script>
     <script type="text/javascript" src="./override.js"></script>
-</body>
+  </body>
 </html>
