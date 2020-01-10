@@ -65,7 +65,7 @@
       e.getModifierState("OS") ||
       e.getModifierState("Super") ||
       e.getModifierState("Meta") ||
-      e.getModifierState("Control") || 
+      e.getModifierState("Control") ||
       e.getModifierState("Shift")
     ) {
       return;
