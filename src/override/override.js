@@ -11,7 +11,6 @@
   console.time('app ready');
 
   // listen to background page to update myself...
-  // chrome.runtime.onMessage.addListener
   chrome.extension.onMessage.addListener(function(request, sender, sendResponse) {
     if(sender.tab){
       // ignore background request sent from tab, only accept background

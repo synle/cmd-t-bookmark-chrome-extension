@@ -1,0 +1,19 @@
+{
+  "name": "cmd-t-bookmark",
+  "version": "1.0.0",
+  "description": "This extension will replace your new page with bookmark search. It searches all your bookmark and present relevant result...",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/synle/cmd-t-bookmark-chrome-extension.git"
+  },
+  "author": "Sy Le",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/synle/cmd-t-bookmark-chrome-extension/issues"
+  },
+  "homepage": "https://github.com/synle/cmd-t-bookmark-chrome-extension#readme"
+}
