@@ -5,6 +5,8 @@
   let current_keyword = '', current_matches = [];
   const mySettings = await window.CommonUtil.getSettings();
 
+  const MIN_SEARCH_LENGTH = 1;
+
   // apply the theme
   document.querySelector('body').classList.add(mySettings.theme);
 
@@ -121,22 +123,29 @@
     const target = _getClosestItem(e.target, 'match');
 
     if(target){
+      e.preventDefault();
+      
       const href = (target.querySelector('a') || parentTarget.querySelector('a')).href;
 
       // set the loading screen...
       document.querySelector('#app').innerHTML = `<h1 class="p3 text-center">Loading...</h1>`;
 
-      // depends on settings, open new tab or redirect
-      if(mySettings.openLinkInNewTab === true){
-        window.open(href, '_blank');
-      } else {
-        location.href = href;
-      }
-
-
-      e.preventDefault();
+      _openLink(href);
     }
   })
+
+
+  // on submit form select first result...
+  document.querySelector('#form-search').addEventListener('submit', function(e){
+    e.preventDefault();
+
+    // find the first select...
+    const allLinks = e.target.querySelectorAll('a');
+    if(allLinks && allLinks.length === 1){
+      const firstLinkHref = allLinks[0].href;
+      _openLink(firstLinkHref);
+    }
+  });
 
   // clean up
   const onUpdateBookmark = (function(){
@@ -172,8 +181,8 @@
           <div class="pt1 pl1"><strong>DELETE</strong> to delete a bookmark</div>
         </div>`;
     }
-    else if(keyword.length <= 2){
-      dom = `<div class="result-row p0">Enter more than 2 characters to search</div>`;
+    else if(keyword.length <= MIN_SEARCH_LENGTH){
+      dom = `<div class="result-row p0">Enter more than ${MIN_SEARCH_LENGTH} character(s) to search</div>`;
     }
     else if(matches.length === 0){
       dom = `
@@ -234,7 +243,7 @@
 
     let results_from_history = [];
     if(mySettings.showResultFromHistory){
-      results_from_history = await searchUrlFromHistory(keyword);
+      results_from_history = await window.searchUrlFromHistory(keyword);
     }
 
     const results_from_bookmark = flattened_bookmarks.filter(
@@ -266,16 +275,6 @@
   function fuzzyMatchBookmark({title, url}, keyword){
     return title.toLowerCase().indexOf(keyword) >= 0
     || url.toLowerCase().indexOf(keyword) >= 0;
-  }
-
-
-  /**
-   * @return {Tree} get the list of bookmark trees from Chrome...
-   */
-  async function getBookmarkTree(){
-    return new Promise(resolve => {
-    chrome.bookmarks.getTree(resolve)
-    })
   }
 
   function getFocusIndexForNavigation(newIdxToFocus, delta, matchesMaxLength){
@@ -315,5 +314,14 @@
     }
 
     return null;
+  }
+
+  function _openLink(href){
+    // depends on settings, open new tab or redirect
+    if(mySettings.openLinkInNewTab === true){
+      window.open(href, '_blank');
+    } else {
+      location.href = href;
+    }
   }
 })()
