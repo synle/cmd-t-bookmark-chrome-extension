@@ -71,28 +71,43 @@
       // get the parent match row
       const matchResultElem = _getClosestItem(currentFocusedElem, 'match');
 
+
+      // if modifier like alt, window, ctrl is held, ignore it
+      if (e.getModifierState("Fn") ||
+        e.getModifierState("Hyper") ||
+        e.getModifierState("OS") ||
+        e.getModifierState("Super") ||
+        e.getModifierState("Meta") ||
+        e.getModifierState("Win")) {
+      return;
+    }
+
+
       switch(key){
         case 'r': // rename
           // make sure we have selected something
           bookmark_id = currentFocusedElem.dataset.bookmark_id;
           if(bookmark_id){
-            const foundTargetMatch = current_matches.find(targetBookmark => targetBookmark.id === bookmark_id);
+            const foundTargetMatch = document.querySelector(`[data-bookmark_id="${bookmark_id}"]`);
 
             if(foundTargetMatch){
-            const newBookmarkName = (prompt(
-              `New name for: \n${foundTargetMatch.url}`,
-              foundTargetMatch.title
-            ) || '').trim();
-
-            // update
+              const url = foundTargetMatch.href;
+              const title = foundTargetMatch.innerText.trim();
+              const newBookmarkName = prompt(
+                `New name for: \n${url}`,
+                title
+              )
+              if(newBookmarkName !== null){
+                // update
             foundTargetMatch.title = newBookmarkName;
-            sendUpdateBookmark(foundTargetMatch);
+            sendUpdateBookmark({url, title: newBookmarkName, id: bookmark_id});
 
             // update the dom itself...
-            matchResultElem.innerHTML = _getBookmarkDom(foundTargetMatch);
+            matchResultElem.querySelector('.match-label').innerText = newBookmarkName;
 
             // refocus on the dom...
             matchResultElem.querySelector('a').focus();
+              }
             }
           }
           break;
@@ -173,7 +188,6 @@
     timer = setTimeout(
       async function(){
         current_matches = await searchBookmarks(current_keyword, flattened_bookmarks, mySettings.showUniqueOnly);
-
         populateBookmarks(current_keyword, current_matches);
         cb && cb();
       },
