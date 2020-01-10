@@ -57,8 +57,17 @@
   // navigate results by keyboard
   document.addEventListener("keydown", async e => {
     let bookmark_id;
-    const { key, ctrlKey } = e;
-    if (ctrlKey === true) {
+    const { key } = e;
+    // if modifier like alt, window, ctrl is held, ignore it
+    if (
+      e.getModifierState("Fn") ||
+      e.getModifierState("Hyper") ||
+      e.getModifierState("OS") ||
+      e.getModifierState("Super") ||
+      e.getModifierState("Meta") ||
+      e.getModifierState("Control") || 
+      e.getModifierState("Shift")
+    ) {
       return;
     }
 
@@ -74,18 +83,6 @@
 
     // get the parent match row
     const matchResultElem = _getClosestItem(currentFocusedElem, "match");
-
-    // if modifier like alt, window, ctrl is held, ignore it
-    if (
-      e.getModifierState("Fn") ||
-      e.getModifierState("Hyper") ||
-      e.getModifierState("OS") ||
-      e.getModifierState("Super") ||
-      e.getModifierState("Meta") ||
-      e.getModifierState("Win")
-    ) {
-      return;
-    }
 
     switch (key) {
       case "r": // rename
@@ -120,6 +117,7 @@
           }
         }
         break;
+      case "Backspace":
       case "Delete":
         bookmark_id = currentFocusedElem.dataset.bookmark_id;
         if (bookmark_id && confirm("Do you want to delete this bookmark?")) {
