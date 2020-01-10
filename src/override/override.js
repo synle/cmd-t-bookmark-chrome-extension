@@ -84,16 +84,15 @@
               foundTargetMatch.title
             ) || '').trim();
 
-            if(newBookmarkName.length > 0){
-              foundTargetMatch.title = newBookmarkName;
-              sendUpdateBookmark(foundTargetMatch);
+            // update
+            foundTargetMatch.title = newBookmarkName;
+            sendUpdateBookmark(foundTargetMatch);
 
-              // update the dom itself...
-              matchResultElem.innerHTML = _getBookmarkDom(foundTargetMatch);
+            // update the dom itself...
+            matchResultElem.innerHTML = _getBookmarkDom(foundTargetMatch);
 
-              // refocus on the dom...
-              matchResultElem.querySelector('a').focus();
-            }
+            // refocus on the dom...
+            matchResultElem.querySelector('a').focus();
             }
           }
           break;
