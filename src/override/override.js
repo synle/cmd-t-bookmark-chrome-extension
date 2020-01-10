@@ -18,14 +18,28 @@
       // ignore background request sent from tab, only accept background
       return;
     }
-    console.debug('Total bookmarks in message:', request && request.length);
-    flattened_bookmarks = request || [];
+    const request_message = request.message;
+    const matching_bookmarks = request.response;
+
+    switch(request_message){
+      case 'RESP_GET_BOOKMARKS_BY_KEYWORD':
+        flattened_bookmarks = matching_bookmarks || [];
+        break;
+      case 'RESP_GET_INITIAL_BOOKMARKS':
+        if(current_keyword === ''){
+          // only populate default bookmark if keyword is empty
+          flattened_bookmarks = matching_bookmarks || [];
+          populateBookmarks(current_keyword, flattened_bookmarks);
+        }
+        break;
+    }    
     deferredLoaded.resolve();
     sendResponse('Child Tab Received')
   })
 
-  sendGetBookmarkRequestToBackgroundPage();
+  sendGetBookmarksByKeywordRequestToBackgroundPage();
   await deferredLoaded.promise;
+  sendGetInitialBookmarksRequestToBackgroundPage();
   console.timeEnd('app ready');
 
 
@@ -172,8 +186,12 @@
 
   function populateBookmarks(keyword, matches){
     let dom = '';
+    keyword = keyword || '';
     if(keyword.length === 0){
-      dom = '';
+      dom = matches.reduce(
+        (acc, current_bookmark) => acc + `<div class="result-row match p0">${_getBookmarkDom(current_bookmark)}</div>`,
+        ''
+      )
     } else if( keyword === '?'){
       dom = `<div class="result-row p0">
           <div class="pb2">Use the following shortcut key to perform operation on selected bookmarks</div>
@@ -237,6 +255,10 @@
   }
 
   async function searchBookmarks(keyword, flattened_bookmarks, dedupeBookmarks){
+    if(keyword.length === 0){
+      sendGetInitialBookmarksRequestToBackgroundPage();
+    }
+
     if(keyword.length < 2){
       return [];
     }
@@ -285,8 +307,12 @@
   }
 
 
-  function sendGetBookmarkRequestToBackgroundPage(forceReload = false){
-    _sendMessageToBackground({message: "GET_BOOKMARKS", forceReload}, function(response) {});
+  function sendGetBookmarksByKeywordRequestToBackgroundPage(forceReload = false){
+    _sendMessageToBackground({message: "GET_BOOKMARKS_BY_KEYWORD", forceReload}, function(response) {});
+  }
+
+  function sendGetInitialBookmarksRequestToBackgroundPage(forceReload = false){
+    _sendMessageToBackground({message: "GET_INITIAL_BOOKMARKS", forceReload}, function(response) {});
   }
 
   function sendDeleteBookmark(to_delete_bookmark_id = -1){

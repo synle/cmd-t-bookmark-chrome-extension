@@ -1,12 +1,14 @@
 // init
 (
   async function(){
-    let  flattened_bookmarks;
+    let flattened_bookmarks;
+    let root_bookmarks = [];
 
     async function reloadData(){
-      console.debug('reloadData', Date.now());
+      console.log('reloadData', Date.now());
       const all_bookmarks = await getBookmarkTree();
-      flattened_bookmarks = transformBookmark(all_bookmarks);
+      flattened_bookmarks = transformFlattenAllBookmarks(all_bookmarks);
+      root_bookmarks = transformFlattenBookmarksBarOnly(flattened_bookmarks);
     }
 
     // debounce this guyh
@@ -42,7 +44,7 @@
         const senderTabId = sender.tab.id;
 
         switch(request.message){
-          case 'GET_BOOKMARKS':
+          case 'GET_BOOKMARKS_BY_KEYWORD':
             if(request.forceReload === true){
               // hard reload should trigger update all new pages...
               reloadData();
@@ -50,8 +52,14 @@
             else {
               // this is not a hard reload
               // we should just update the sender with data
-              updateNewPageWithData(senderTabId)
+              updateNewPageWithMatchingData(senderTabId)
             }
+            break;
+
+          case 'GET_INITIAL_BOOKMARKS':
+            // this is not a hard reload
+            // we should just update the sender with data
+            updateNewPageWithInitialData(senderTabId)
             break;
 
           case 'DELETE_BOOKMARK':
@@ -79,23 +87,37 @@
           .map(t => t.id);
 
         // update all the child pages with new data...
-        updateNewPageWithData(tabIds)
+        updateNewPageWithMatchingData(tabIds)
       });
     }
     window.updateAllNewTabPages= updateAllNewTabPages;
 
 
-    function updateNewPageWithData(tabIds){
+    function updateNewPageWithMatchingData(tabIds){
       tabIds = [].concat(tabIds);
 
-      console.debug('updateNewPageWithData', tabIds)
+      console.log('updateNewPageWithMatchingData', tabIds)
 
       // update all the child pages with new data...
       tabIds.forEach(
         tabId => {
-          // console.debug('updateNewPageWithData > tab', tabId)
-          chrome.tabs.sendMessage(tabId, flattened_bookmarks, (response) => {
-            // console.debug('updateNewPageWithData > tab > ChildTab Responded', response)
+          // console.log('updateNewPageWithMatchingData > tab', tabId)
+          chrome.tabs.sendMessage(tabId, {response: flattened_bookmarks, message: 'RESP_GET_BOOKMARKS_BY_KEYWORD'}, (response) => {
+          });
+        }
+      )
+    }
+
+    function updateNewPageWithInitialData(tabIds){
+      tabIds = [].concat(tabIds);
+
+      console.log('updateNewPageWithInitialData', tabIds)
+
+      // update all the child pages with new data...
+      tabIds.forEach(
+        tabId => {
+          // console.log('updateNewPageWithInitialData > tab', tabId)
+          chrome.tabs.sendMessage(tabId, {response: root_bookmarks, message: 'RESP_GET_INITIAL_BOOKMARKS'}, (response) => {
           });
         }
       )
@@ -106,7 +128,9 @@
      */
     async function getBookmarkTree(){
       return new Promise(resolve => {
-        chrome.bookmarks.getTree(resolve)
+        chrome.bookmarks.getTree(function(nodes){
+          resolve(nodes);
+        })
       })
     }
 
@@ -116,7 +140,7 @@
      * @param  {[type]} mapNodesById  [description]
      * @return {Array} flatten the list of bookmark tree nodes, and add ancestor
      */
-    function transformBookmark(nodes){
+    function transformFlattenAllBookmarks(nodes){
       const mapNodesById = {};
       const queue = [].concat(nodes);
       const results = [];
@@ -151,6 +175,9 @@
                 node.breadcrumb = node.ancestorLabels.filter(n => !!n).join(' > ');
               }
 
+              // this flag is used to populate the default flag...
+              node.isDefaultBookmark = _isDefaultBookmark(node);
+
               // if there are children, then add them to the queue
               if(node.children && node.children.length > 0){
                 queue.push(node.children);
@@ -162,6 +189,25 @@
           );
       }
 
+      return _normalizeBookmarks(results);
+    }
+
+    function transformFlattenBookmarksBarOnly(flatten_nodes){
+      const bookmark_only_results = flatten_nodes.filter(function(node){
+        // only take care of default bookmark of this desired depth level
+        return node.ancestorIds.length <= 3 && node.isDefaultBookmark;
+      }).sort(function(a,b){
+        if (a.breadcrumb > b.breadcrumb){
+          return 1;
+        } else if (a.breadcrumb < b.breadcrumb){
+          return -1;
+        }
+        return 0;
+      })
+      return bookmark_only_results;
+    }
+
+    function _normalizeBookmarks(results){
       return results.filter(({url}) => !!url && url.indexOf(`script:(`) !== 0)// ignore book-marklet and no url nodes
         .map(bookmark_object => {
           bookmark_object.clean_url = (bookmark_object.url || '').replace('https://', '')
@@ -185,6 +231,16 @@
           }
           return 0;
         })
+    }
+
+    function _isDefaultBookmark(node){
+      const KEYWORD_BOOKMARKS_BARS = [
+        'Bookmarks Bar',
+      ]
+      
+      return node.ancestorLabels.some(function(labelPart){
+        return KEYWORD_BOOKMARKS_BARS.indexOf(labelPart) >= 0;
+      });
     }
 
     async function deleteBookmark(to_delete_bookmark_id){
