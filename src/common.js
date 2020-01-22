@@ -85,3 +85,17 @@ window.Deferred = function Deferred() {
     Object.freeze(this);
   }
 };
+
+window.openModal = function(modalSelector, modalContentHTML) {
+  const modal = document.querySelector(modalSelector);
+  modal.querySelector(".modal-content-main").innerHTML = modalContentHTML;
+  modal.style.display = "block";
+
+  modal.querySelector(".close").onclick = () => (modal.style.display = "none");
+};
+
+window.closeModal = function(modalSelector) {
+  var modal = document.querySelector(modalSelector);
+  modal.style.display = "none";
+  modal.querySelector(".modal-content-main").innerText = "";
+};

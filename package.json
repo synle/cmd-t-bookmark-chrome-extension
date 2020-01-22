@@ -1,6 +1,6 @@
 {
   "name": "cmd-t-bookmark",
-  "version": "0.14.1",
+  "version": "0.14.3",
   "description": "This extension will replace your new page with bookmark search. It searches all your bookmark and present relevant result...",
   "main": "index.js",
   "scripts": {

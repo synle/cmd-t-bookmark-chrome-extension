@@ -52,7 +52,7 @@
       };
 
       window.CommonUtil.saveSettings(newValue).then(() => {
-        formStatus.innerHTML = `<i>Settings Saved Successfully</i>`;
+        formStatus.innerHTML = `<i class="success">Settings Saved Successfully</i>`;
       });
 
       return false;

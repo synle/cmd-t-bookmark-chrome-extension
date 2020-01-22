@@ -24,6 +24,8 @@
         border: 1px solid transparent;
       }
       .match {
+        align-items: center;
+        cursor: pointer;
       }
       .match a,
       .match a:visited {
@@ -117,8 +119,8 @@
         background: var(--c-white2);
         color: var(--c-black0);
       }
-      .bright-theme a,
-      .bright-theme a:visited,
+      .bright-theme #bookmarks-container a,
+      .bright-theme #bookmarks-container a:visited,
       .bright-theme ::placeholder {
         color: var(--c-grey3);
       }
@@ -153,6 +155,16 @@
         </div>
         <div id="bookmarks-container"></div>
       </form>
+      <div class="pt2 pb2 center">
+        <a id="btn-settings">Settings</a>
+      </div>
+    </div>
+    <div id="main-modal" class="modal">
+      <!-- Modal content -->
+      <div class="modal-content">
+        <a class="close">&times;</a>
+        <div class="modal-content-main"></div>
+      </div>
     </div>
     <script type="text/javascript" src="../common.js"></script>
     <script type="text/javascript" src="./override.js"></script>
