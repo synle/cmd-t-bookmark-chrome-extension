@@ -54,6 +54,11 @@
     chrome.runtime.openOptionsPage()
   );
 
+  // hook up hover to change selection
+  document.querySelector('#bookmarks-container').addEventListener('mouseover', e => {
+    const target = e.target;
+    target.querySelector('a').focus();
+  })
 
   // hook up the search
   const txtSearchElem = document.querySelector("#txt-search");
