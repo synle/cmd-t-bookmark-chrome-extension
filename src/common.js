@@ -86,17 +86,16 @@ window.Deferred = function Deferred() {
   }
 };
 
-
-window.openModal = function(modalSelector, modalContentHTML){
+window.openModal = function(modalSelector, modalContentHTML) {
   const modal = document.querySelector(modalSelector);
-  modal.querySelector('.modal-content-main').innerHTML = modalContentHTML;
+  modal.querySelector(".modal-content-main").innerHTML = modalContentHTML;
   modal.style.display = "block";
 
-  modal.querySelector('.close').onclick = () => modal.style.display = 'none';
-}
+  modal.querySelector(".close").onclick = () => (modal.style.display = "none");
+};
 
-window.closeModal = function(modalSelector){
+window.closeModal = function(modalSelector) {
   var modal = document.querySelector(modalSelector);
   modal.style.display = "none";
-  modal.querySelector('.modal-content-main').innerText = '';
-}
+  modal.querySelector(".modal-content-main").innerText = "";
+};

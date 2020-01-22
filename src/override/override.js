@@ -48,17 +48,19 @@
   console.timeEnd("app ready");
 
   // hook misc events
-  const btnSettings = document.querySelector('#btn-settings');
+  const btnSettings = document.querySelector("#btn-settings");
   btnSettings.addEventListener("click", e =>
     // chrome.tabs.create({'url': "/options.html" } )
     chrome.runtime.openOptionsPage()
   );
 
   // hook up hover to change selection
-  document.querySelector('#bookmarks-container').addEventListener('mouseover', e => {
-    const target = e.target;
-    target.querySelector('a').focus();
-  })
+  document
+    .querySelector("#bookmarks-container")
+    .addEventListener("mouseover", e => {
+      const target = e.target;
+      target.querySelector("a").focus();
+    });
 
   // hook up the search
   const txtSearchElem = document.querySelector("#txt-search");
@@ -68,7 +70,7 @@
   );
 
   // navigate results by keyboard
-  document.querySelector('#app').addEventListener("keydown", async e => {
+  document.querySelector("#app").addEventListener("keydown", async e => {
     let bookmark_id;
     const { key } = e;
     // if modifier like alt, window, ctrl is held, ignore it
@@ -111,8 +113,10 @@
             const title = foundTargetMatch.innerText.trim();
 
             e.preventDefault();
-            
-            window.openModal('#main-modal', `
+
+            window.openModal(
+              "#main-modal",
+              `
               <form id="form-edit-bookmark">
                 <div class="pt1">
                   <h2>Rename bookmark title</h2>
@@ -129,38 +133,45 @@
                   <input type="submit" value="Save" />
                 </div>
               </form>
-            `);
+            `
+            );
 
-            const newBookmarkTitle = document.querySelector('#main-modal #txt-new-title');
+            const newBookmarkTitle = document.querySelector(
+              "#main-modal #txt-new-title"
+            );
             newBookmarkTitle.value = title;
             newBookmarkTitle.focus();
 
-            document.querySelector('#form-edit-bookmark').addEventListener('submit', e2 => {
-              const newBookmarkName = document.querySelector('#main-modal #txt-new-title').value;
+            document
+              .querySelector("#form-edit-bookmark")
+              .addEventListener("submit", e2 => {
+                const newBookmarkName = document.querySelector(
+                  "#main-modal #txt-new-title"
+                ).value;
 
-              if (newBookmarkName !== null) {
-                // update
-                foundTargetMatch.title = newBookmarkName;
-                sendUpdateBookmark({
-                  url,
-                  title: newBookmarkName,
-                  id: bookmark_id
-                });
-  
-                // update the dom itself...
-                matchResultElem.querySelector(
-                  ".match-label"
-                ).innerText = newBookmarkName;
-  
-                // refocus on the dom...
-                matchResultElem.querySelector("a").focus();
-              }
+                if (newBookmarkName !== null) {
+                  // update
+                  foundTargetMatch.title = newBookmarkName;
+                  sendUpdateBookmark({
+                    url,
+                    title: newBookmarkName,
+                    id: bookmark_id
+                  });
 
-              window.closeModal('#main-modal');
+                  // update the dom itself...
+                  matchResultElem.querySelector(
+                    ".match-label"
+                  ).innerText = newBookmarkName;
 
-              e2.preventDefault();
-              return false;
-            });
+                  // refocus on the dom...
+                  matchResultElem.querySelector("a").focus();
+                }
+
+                window.closeModal("#main-modal");
+
+                e2.preventDefault();
+                return false;
+              });
           }
         }
         break;
