@@ -47,6 +47,14 @@
   sendGetInitialBookmarksRequestToBackgroundPage();
   console.timeEnd("app ready");
 
+  // hook misc events
+  const btnSettings = document.querySelector('#btn-settings');
+  btnSettings.addEventListener("click", e =>
+    // chrome.tabs.create({'url': "/options.html" } )
+    chrome.runtime.openOptionsPage()
+  );
+
+
   // hook up the search
   const txtSearchElem = document.querySelector("#txt-search");
   txtSearchElem.value = "";

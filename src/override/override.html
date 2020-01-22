@@ -82,6 +82,10 @@
         border-left: 3px solid var(--c-red0);
         font-weight: bold;
       }
+      .match:hover{
+        font-weight: bold;
+        cursor: pointer;
+      }
       .text-center {
         text-align: center;
       }
@@ -112,14 +116,17 @@
       .dark-theme .match-breadcrumb {
         color: var(--c-red0);
       }
+      .dark-theme .match:hover {
+        border-left: 3px solid blue !important;
+      }
 
       /*bright*/
       body.bright-theme {
         background: var(--c-white2);
         color: var(--c-black0);
       }
-      .bright-theme a,
-      .bright-theme a:visited,
+      .bright-theme #bookmarks-container a,
+      .bright-theme #bookmarks-container a:visited,
       .bright-theme ::placeholder {
         color: var(--c-grey3);
       }
@@ -139,8 +146,8 @@
       .bright-theme .match-breadcrumb {
         color: var(--c-red0);
       }
-      .bright-theme #txt-search {
-        box-shadow: 0 2px var(--c-grey3);
+      .bright-theme .match:hover {
+        border-left: 3px solid blue !important;
       }
     </style>
 
@@ -157,6 +164,9 @@
         </div>
         <div id="bookmarks-container"></div>
       </form>
+      <div class="pt2 pb2 center">
+        <a id="btn-settings">Settings</a>
+      </div>
     </div>
     <script type="text/javascript" src="../common.js"></script>
     <script type="text/javascript" src="./override.js"></script>

@@ -32,6 +32,9 @@
 .cptr {
   cursor: pointer;
 }
+.center{
+  text-align: center;
+}
 .p0 {
   padding: var(--space0);
 }
@@ -95,4 +98,8 @@
 * {
   box-sizing: border-box;
   font-size: var(--font-size1);
+}
+a{
+  color: blue;
+  cursor: pointer;
 }
