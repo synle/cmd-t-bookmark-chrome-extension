@@ -63,7 +63,7 @@
   );
 
   // navigate results by keyboard
-  document.addEventListener("keydown", async e => {
+  document.querySelector('#app').addEventListener("keydown", async e => {
     let bookmark_id;
     const { key } = e;
     // if modifier like alt, window, ctrl is held, ignore it
@@ -104,24 +104,58 @@
           if (foundTargetMatch) {
             const url = foundTargetMatch.href;
             const title = foundTargetMatch.innerText.trim();
-            const newBookmarkName = prompt(`New name for: \n${url}`, title);
-            if (newBookmarkName !== null) {
-              // update
-              foundTargetMatch.title = newBookmarkName;
-              sendUpdateBookmark({
-                url,
-                title: newBookmarkName,
-                id: bookmark_id
-              });
 
-              // update the dom itself...
-              matchResultElem.querySelector(
-                ".match-label"
-              ).innerText = newBookmarkName;
+            e.preventDefault();
+            
+            window.openModal('#main-modal', `
+              <form id="form-edit-bookmark">
+                <div class="pt1">
+                  <h2>Rename bookmark title</h2>
+                </div>
+                <div class="pt1">
+                  <div><strong>URL</strong></div>
+                  <div><a class="word-break-all" href="${url}" target="_blank">${url}</a></div>
+                </div>
+                <div class="pt1">
+                  <div><strong>New name for</strong></div>
+                  <div><input id="txt-new-title" class="w100pct"/></div>
+                </div>
+                <div class="pt1">
+                  <input type="submit" value="Save" />
+                </div>
+              </form>
+            `);
 
-              // refocus on the dom...
-              matchResultElem.querySelector("a").focus();
-            }
+            const newBookmarkTitle = document.querySelector('#main-modal #txt-new-title');
+            newBookmarkTitle.value = title;
+            newBookmarkTitle.focus();
+
+            document.querySelector('#form-edit-bookmark').addEventListener('submit', e2 => {
+              const newBookmarkName = document.querySelector('#main-modal #txt-new-title').value;
+
+              if (newBookmarkName !== null) {
+                // update
+                foundTargetMatch.title = newBookmarkName;
+                sendUpdateBookmark({
+                  url,
+                  title: newBookmarkName,
+                  id: bookmark_id
+                });
+  
+                // update the dom itself...
+                matchResultElem.querySelector(
+                  ".match-label"
+                ).innerText = newBookmarkName;
+  
+                // refocus on the dom...
+                matchResultElem.querySelector("a").focus();
+              }
+
+              window.closeModal('#main-modal');
+
+              e2.preventDefault();
+              return false;
+            });
           }
         }
         break;
